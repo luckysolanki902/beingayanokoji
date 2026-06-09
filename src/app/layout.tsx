@@ -133,13 +133,19 @@ function SiteFooter() {
             Calm in tone. Heavy in substance. Quiet in delivery. Compounding in effect.
           </p>
         </div>
-        <div className="flex gap-8 text-xs text-[color:var(--color-muted)]">
+        <div className="flex flex-wrap gap-x-8 gap-y-2 text-xs text-[color:var(--color-muted)]">
           <Link href="/lectures" className="hover:text-[color:var(--color-fg)]">
             Index
           </Link>
           <Link href="/about" className="hover:text-[color:var(--color-fg)]">
             Philosophy
           </Link>
+          <a
+            href="mailto:luckysolanki902@gmail.com"
+            className="hover:text-[color:var(--color-fg)] transition-colors"
+          >
+            luckysolanki902@gmail.com
+          </a>
           <span className="text-[color:var(--color-faint)]">© {new Date().getFullYear()}</span>
         </div>
       </div>
