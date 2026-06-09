@@ -22,7 +22,7 @@ function Hero() {
       <div className="mx-auto max-w-4xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-8">
-            beingayanokoji.vercel.app · daily lectures
+            beingayanokoji.vercel.app · long-form lectures
           </p>
         </FadeIn>
 
@@ -47,9 +47,10 @@ function Hero() {
 
         <FadeIn delay={1.4}>
           <p className="mt-12 max-w-2xl text-lg text-[color:var(--color-muted)] leading-relaxed">
-            One deeply-researched lecture per day on cognition, psychology, strength,
+            Deeply-researched long-form lectures on cognition, psychology, strength,
             strategy, and purpose. Written for the reader who has consumed a hundred
-            self-improvement essays and converted almost none of them into change.
+            self-improvement essays and converted almost none of them into change. New
+            lectures keep arriving.
             <BlinkingCursor className="ml-1 text-[color:var(--color-accent)]" />
           </p>
         </FadeIn>
@@ -60,7 +61,7 @@ function Hero() {
               href="/lectures"
               className="group inline-flex items-center gap-3 px-6 py-3 border border-[color:var(--color-fg)] hover:bg-[color:var(--color-fg)] hover:text-[color:var(--color-bg)] transition-all duration-300"
             >
-              <span className="text-sm tracking-wide">Today&apos;s lecture</span>
+              <span className="text-sm tracking-wide">Start reading</span>
               <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </Link>
             <Link

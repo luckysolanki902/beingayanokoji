@@ -20,7 +20,7 @@ export default function AboutPage() {
 
         <AnimatedText
           as="h1"
-          text="A daily training ground for the mind, body, and operator."
+          text="A training ground for the mind, body, and operator."
           className="font-serif text-4xl md:text-6xl tracking-tight font-medium leading-[1.05]"
           stagger={0.03}
         />

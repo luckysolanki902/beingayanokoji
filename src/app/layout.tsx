@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import Link from "next/link";
 import { Analytics } from "@vercel/analytics/next";
+import { SupportButton } from "@/components/SupportButton";
+import { SupportBlock } from "@/components/Support";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,11 +24,11 @@ const SITE_URL = "https://beingayanokoji.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Being Ayanokoji — A daily training ground for the mind, body, and operator",
+    default: "Being Ayanokoji — A training ground for the mind, body, and operator",
     template: "%s · Being Ayanokoji",
   },
   description:
-    "One deeply-researched lecture per day on cognition, psychology, strength, strategy, and purpose. No platitudes. No hype. Compounding clarity for the patient reader.",
+    "Deeply-researched long-form lectures on cognition, psychology, strength, strategy, and purpose. No platitudes. No hype. New lectures published regularly. Compounding clarity for the patient reader.",
   keywords: [
     "self improvement",
     "psychology",
@@ -46,14 +48,14 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: "Being Ayanokoji",
     description:
-      "A daily lecture on becoming sharper, stronger, and more deliberate. Calm in tone. Heavy in substance.",
+      "Long-form lectures on becoming sharper, stronger, and more deliberate. Calm in tone. Heavy in substance.",
     siteName: "Being Ayanokoji",
   },
   twitter: {
     card: "summary_large_image",
     title: "Being Ayanokoji",
     description:
-      "A daily lecture on becoming sharper, stronger, and more deliberate.",
+      "Long-form lectures on becoming sharper, stronger, and more deliberate.",
   },
   robots: {
     index: true,
@@ -101,13 +103,14 @@ function SiteHeader() {
           <span className="text-[color:var(--color-faint)]">being</span>
           <span className="font-medium">ayanokoji</span>
         </Link>
-        <nav className="flex items-center gap-8 text-sm text-[color:var(--color-muted)]">
+        <nav className="flex items-center gap-6 md:gap-8 text-sm text-[color:var(--color-muted)]">
           <Link href="/lectures" className="hover:text-[color:var(--color-fg)] transition-colors">
             Lectures
           </Link>
           <Link href="/about" className="hover:text-[color:var(--color-fg)] transition-colors">
             About
           </Link>
+          <SupportButton />
         </nav>
       </div>
     </header>
@@ -117,7 +120,10 @@ function SiteHeader() {
 function SiteFooter() {
   return (
     <footer className="border-t border-[color:var(--color-rule)]/40 mt-32">
-      <div className="mx-auto max-w-6xl px-6 py-12 flex flex-col md:flex-row gap-6 justify-between items-start">
+      <div className="mx-auto max-w-4xl px-6 pt-16">
+        <SupportBlock />
+      </div>
+      <div className="mx-auto max-w-6xl px-6 py-12 mt-12 border-t border-[color:var(--color-rule)]/40 flex flex-col md:flex-row gap-6 justify-between items-start">
         <div className="space-y-2">
           <p className="font-serif text-sm">
             <span className="text-[color:var(--color-faint)]">being</span>

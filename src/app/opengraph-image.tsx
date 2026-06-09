@@ -33,7 +33,7 @@ export default async function OG() {
           </div>
         </div>
         <div style={{ display: "flex", fontSize: 26, color: "#a1a1aa", fontStyle: "italic" }}>
-          One lecture per day. Cognition · Psychology · Strength · Strategy · Purpose.
+          Long-form lectures. Cognition · Psychology · Strength · Strategy · Purpose.
         </div>
       </div>
     ),

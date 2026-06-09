@@ -6,7 +6,7 @@ import { FadeIn, AnimatedText } from "@/components/AnimatedText";
 export const metadata: Metadata = {
   title: "Lectures",
   description:
-    "The full index of daily lectures — cognition, psychology, strength, strategy, purpose. Sorted newest first.",
+    "The full index of long-form lectures — cognition, psychology, strength, strategy, purpose. Sorted newest first.",
   alternates: { canonical: "/lectures" },
 };
 
@@ -28,15 +28,16 @@ export default function LecturesIndexPage() {
         />
         <FadeIn delay={0.5}>
           <p className="mt-8 max-w-2xl text-[color:var(--color-muted)] leading-relaxed">
-            Each entry below is a self-contained essay. The order is chronological.
-            The pillar tag tells you which dimension the lecture is sharpening.
+            Each entry below is a self-contained essay. The order is chronological,
+            newest first. The pillar tag tells you which dimension the lecture is
+            sharpening. New lectures are added as they are finished.
           </p>
         </FadeIn>
 
         <div className="mt-20 divide-y divide-[color:var(--color-rule)]/40 border-y border-[color:var(--color-rule)]/40">
           {lectures.length === 0 && (
             <p className="py-12 text-center text-[color:var(--color-muted)] italic font-serif">
-              The first lecture is being drafted. Return tomorrow.
+              The first lecture is being drafted. Return shortly.
             </p>
           )}
           {lectures.map((lec, i) => (
