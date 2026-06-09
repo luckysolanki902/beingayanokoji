@@ -1,7 +1,7 @@
 ---
 title: "Working Memory Is the Bottleneck of Every Plan You Have Ever Made"
 slug: "working-memory-bottleneck"
-date: "2026-06-06"
+order: 3
 pillar: "I"
 secondary_pillars: ["III", "XII"]
 reading_time_min: 21

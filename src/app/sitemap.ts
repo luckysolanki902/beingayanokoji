@@ -8,7 +8,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const lectureEntries: MetadataRoute.Sitemap = lectures.map((lec) => ({
     url: `${SITE_URL}/lectures/${lec.slug}`,
-    lastModified: new Date(lec.date),
     changeFrequency: "yearly",
     priority: 0.8,
   }));
@@ -16,19 +15,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: SITE_URL,
-      lastModified: new Date(),
-      changeFrequency: "daily",
+      changeFrequency: "weekly",
       priority: 1,
     },
     {
       url: `${SITE_URL}/lectures`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
+      changeFrequency: "weekly",
       priority: 0.9,
     },
     {
       url: `${SITE_URL}/about`,
-      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5,
     },

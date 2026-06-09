@@ -1,7 +1,7 @@
 ---
 title: "Lust Is the Cheapest Way to Steal Your Attention"
 slug: "lust-as-attention-capture"
-date: "2026-06-05"
+order: 2
 pillar: "III"
 secondary_pillars: ["II", "I"]
 reading_time_min: 20

@@ -8,7 +8,7 @@ const LECTURES_DIR = path.join(process.cwd(), "src", "data", "lectures");
 export type LectureMeta = {
   slug: string;
   title: string;
-  date: string;
+  order: number;
   pillar: string;
   secondaryPillars?: string[];
   difficulty?: "introductory" | "intermediate" | "advanced";
@@ -42,7 +42,7 @@ export function getLectureBySlug(slug: string): Lecture | null {
   return {
     slug,
     title: data.title ?? slug,
-    date: data.date ?? new Date().toISOString().slice(0, 10),
+    order: data.order ?? 0,
     pillar: data.pillar ?? "—",
     secondaryPillars: data.secondary_pillars ?? [],
     difficulty: data.difficulty,
@@ -64,7 +64,7 @@ export function getAllLectures(): LectureMeta[] {
       return meta;
     })
     .filter((x): x is LectureMeta => x !== null)
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+    .sort((a, b) => b.order - a.order);
 }
 
 function deriveExcerpt(content: string): string {

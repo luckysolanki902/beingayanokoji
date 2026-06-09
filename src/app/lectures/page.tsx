@@ -47,10 +47,7 @@ export default function LecturesIndexPage() {
                 className="group block py-10 hover:bg-[color:var(--color-bg-elevated)]/30 transition-colors"
               >
                 <div className="grid grid-cols-12 gap-4 items-baseline px-2">
-                  <div className="col-span-12 md:col-span-2 text-xs text-[color:var(--color-faint)] font-mono mb-2 md:mb-0">
-                    {lec.date}
-                  </div>
-                  <div className="col-span-12 md:col-span-7">
+                  <div className="col-span-12 md:col-span-9">
                     <h2 className="font-serif text-2xl md:text-3xl tracking-tight leading-snug group-hover:text-[color:var(--color-accent)] transition-colors">
                       {lec.title}
                     </h2>

@@ -1,7 +1,7 @@
 ---
 title: "Emotional Granularity Beats Emotional Control"
 slug: "emotional-granularity-beats-control"
-date: "2026-06-09"
+order: 6
 pillar: "II"
 secondary_pillars: ["I", "XII"]
 reading_time_min: 19

@@ -1,7 +1,7 @@
 ---
 title: "The Cost of Running Someone Else's Race"
 slug: "cost-of-running-someone-elses-race"
-date: "2026-06-10"
+order: 7
 pillar: "X"
 secondary_pillars: ["IV", "I"]
 reading_time_min: 18

@@ -27,7 +27,6 @@ export async function generateMetadata({
       title: lec.title,
       description: lec.keyClaim || lec.excerpt,
       type: "article",
-      publishedTime: lec.date,
       tags: lec.tags,
     },
     twitter: {
@@ -57,7 +56,6 @@ export default async function LecturePage({
     "@type": "Article",
     headline: lec.title,
     description: lec.keyClaim || lec.excerpt,
-    datePublished: lec.date,
     author: { "@type": "Organization", name: "Being Ayanokoji" },
     publisher: {
       "@type": "Organization",
@@ -111,8 +109,6 @@ export default async function LecturePage({
 
           <FadeIn delay={0.6}>
             <div className="mt-8 flex items-center gap-6 text-xs text-[color:var(--color-muted)] font-mono">
-              <time dateTime={lec.date}>{lec.date}</time>
-              <span className="text-[color:var(--color-faint)]">·</span>
               <span>{lec.readingTimeMin} min</span>
               <span className="text-[color:var(--color-faint)]">·</span>
               <span>{lec.wordCount.toLocaleString()} words</span>

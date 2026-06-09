@@ -146,7 +146,7 @@ function SiteFooter() {
           >
             luckysolanki902@gmail.com
           </a>
-          <span className="text-[color:var(--color-faint)]">© {new Date().getFullYear()}</span>
+          <span className="text-[color:var(--color-faint)]">© Being Ayanokoji</span>
         </div>
       </div>
     </footer>

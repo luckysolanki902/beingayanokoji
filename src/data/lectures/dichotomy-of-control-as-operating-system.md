@@ -1,7 +1,7 @@
 ---
 title: "The Dichotomy of Control as a Practical Operating System"
 slug: "dichotomy-of-control-as-operating-system"
-date: "2026-06-07"
+order: 4
 pillar: "XI"
 secondary_pillars: ["II", "I"]
 reading_time_min: 20

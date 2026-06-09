@@ -1,7 +1,7 @@
 ---
 title: "Comparison Is the Quiet Thief of Every Ambitious Young Man"
 slug: "comparison-as-the-quiet-thief"
-date: "2026-06-04"
+order: 1
 pillar: "V"
 secondary_pillars: ["II", "X"]
 reading_time_min: 19

@@ -1,7 +1,7 @@
 ---
 title: "Strength Training as Insurance Against Your Future Self"
 slug: "strength-as-insurance"
-date: "2026-06-08"
+order: 5
 pillar: "VI"
 secondary_pillars: ["VIII", "X"]
 reading_time_min: 20
