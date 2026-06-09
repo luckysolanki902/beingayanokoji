@@ -26,7 +26,7 @@ export function SupportButton() {
         onClick={() => setOpen(true)}
         className="text-sm text-[color:var(--color-muted)] hover:text-[color:var(--color-accent)] transition-colors"
       >
-        Support
+        Sustain
       </button>
 
       <AnimatePresence>
@@ -42,7 +42,7 @@ export function SupportButton() {
           >
             <motion.div
               key="panel"
-              className="relative max-w-2xl w-full"
+              className="relative w-full max-w-[calc(100%-2rem)] sm:max-w-xl md:max-w-2xl"
               initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.97 }}
@@ -51,8 +51,8 @@ export function SupportButton() {
             >
               <button
                 onClick={() => setOpen(false)}
-                className="absolute -top-3 -right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-[color:var(--color-bg)] border border-[color:var(--color-rule)] text-[color:var(--color-muted)] hover:text-[color:var(--color-fg)] hover:border-[color:var(--color-muted)] transition-colors text-lg leading-none"
-                aria-label="Close support panel"
+                className="absolute top-3 right-3 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-[color:var(--color-bg)] border border-[color:var(--color-rule)] text-[color:var(--color-muted)] hover:text-[color:var(--color-fg)] hover:border-[color:var(--color-muted)] transition-colors text-lg leading-none"
+                aria-label="Close Sustain"
               >
                 ×
               </button>
