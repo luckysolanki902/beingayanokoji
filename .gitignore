@@ -38,3 +38,6 @@ next-env.d.ts
 # IDE
 .idea/
 .vscode/
+
+# local-only bulk PDF export (personal, not for the repo)
+bulk-print/

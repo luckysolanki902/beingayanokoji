@@ -9,7 +9,7 @@
   --color-bg-elevated: oklch(0.17 0.005 270);
   --color-fg: oklch(0.96 0.005 270);
   --color-muted: oklch(0.65 0.005 270);
-  --color-faint: oklch(0.32 0.005 270);
+--color-faint: oklch(0.60 0.005 270);
   --color-accent: oklch(0.78 0.12 60);
   --color-rule: oklch(0.25 0.005 270);
 }
@@ -231,5 +231,58 @@ h3:hover .heading-anchor {
   }
   .prose-lecture h3 {
     font-size: 1.25rem;
+  }
+}
+
+/* ---- /print page: article only, sized to A4 ---- */
+
+.a4-sheet {
+  width: 210mm;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 22mm 20mm;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .a4-sheet {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+/* Printing (and the bulk PDF export) keeps the article's exact layout — the
+   accent drop-cap, the blockquote and heading treatment, the pillar legend —
+   but flips to a light, paper-friendly palette. This is done by overriding the
+   color variables for print only, so every component re-themes automatically
+   without touching its markup. */
+@media print {
+  :root {
+    --color-bg: #ffffff;
+    --color-bg-elevated: #f4f3f0;
+    --color-fg: #14130f;
+    --color-muted: #4a4844;
+    --color-faint: #9b988f;
+    --color-rule: #d9d6cf;
+    --color-accent: oklch(0.58 0.13 55);
+  }
+  html,
+  body {
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .grain::before {
+    display: none;
+  }
+  .a4-sheet {
+    width: 100%;
+    padding: 0;
+  }
+  @page {
+    size: A4;
   }
 }

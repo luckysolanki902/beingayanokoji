@@ -17,6 +17,7 @@ export type LectureMeta = {
   readingTimeMin: number;
   wordCount: number;
   excerpt?: string;
+  published: boolean;
 };
 
 export type Lecture = LectureMeta & {
@@ -51,8 +52,15 @@ export function getLectureBySlug(slug: string): Lecture | null {
     readingTimeMin: Math.max(1, Math.round(stats.minutes)),
     wordCount: stats.words,
     excerpt: data.excerpt ?? deriveExcerpt(content),
+    published: data.published !== false,
     content,
   };
+}
+
+export function getPublishedLectureSlugs(): string[] {
+  return getAllLectures()
+    .filter((l) => l.published)
+    .map((l) => l.slug);
 }
 
 export function getAllLectures(): LectureMeta[] {

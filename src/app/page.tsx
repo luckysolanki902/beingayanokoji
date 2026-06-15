@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AnimatedText, FadeIn } from "@/components/AnimatedText";
 import { BlinkingCursor } from "@/components/Cursor";
 import { getAllLectures } from "@/lib/lectures";
+import { PILLARS } from "@/lib/pillars";
 
 export default function HomePage() {
   const lectures = getAllLectures().slice(0, 3);
@@ -120,10 +121,10 @@ function RecentLectures({ lectures }: { lectures: ReturnType<typeof getAllLectur
           <div className="flex items-end justify-between mb-12">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-3">
-                Recent
+                Begin here
               </p>
               <h2 className="font-serif text-4xl md:text-5xl tracking-tight font-medium">
-                Lately on the desk.
+                Read them in order.
               </h2>
             </div>
             <Link
@@ -165,20 +166,7 @@ function RecentLectures({ lectures }: { lectures: ReturnType<typeof getAllLectur
 }
 
 function Pillars() {
-  const pillars = [
-    { num: "I", name: "Cognition", note: "Clearer reasoning under uncertainty." },
-    { num: "II", name: "Psychology", note: "Regulation through granularity, not suppression." },
-    { num: "III", name: "Discipline", note: "Habits as architecture, not willpower." },
-    { num: "IV", name: "Strategy", note: "Leverage compounds. Effort does not." },
-    { num: "V", name: "Social", note: "Influence as warmth times competence." },
-    { num: "VI", name: "Strength", note: "Insurance against the future self." },
-    { num: "VII", name: "Athleticism", note: "Skill, not just force." },
-    { num: "VIII", name: "Recovery", note: "Sleep first. Then everything else." },
-    { num: "IX", name: "Nutrition", note: "Energy balance survives every war." },
-    { num: "X", name: "Purpose", note: "Found through action, not declaration." },
-    { num: "XI", name: "Philosophy", note: "Stoa, Dhamma, Junzi — read slowly." },
-    { num: "XII", name: "Self-knowledge", note: "Observe yourself before directing yourself." },
-  ];
+  const pillars = PILLARS;
 
   return (
     <section className="py-32 px-6 border-t border-[color:var(--color-rule)]/40">
