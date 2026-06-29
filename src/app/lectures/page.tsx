@@ -28,8 +28,7 @@ export default function LecturesIndexPage() {
         />
         <FadeIn delay={0.5}>
           <p className="mt-8 max-w-2xl text-[color:var(--color-muted)] leading-relaxed">
-            Each entry below is a self-contained essay. The order is chronological,
-            newest first. The pillar tag tells you which dimension the lecture is
+            Each entry below is a self-contained essay. Start from the first lecture. The pillar tag tells you which dimension the lecture is
             sharpening. New lectures are added as they are finished.
           </p>
         </FadeIn>
