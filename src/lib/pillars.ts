@@ -4,7 +4,7 @@ export type Pillar = {
   note: string;
   /**
    * URL segment for the pillar's topic page. Written the way someone searches
-   * rather than the way the site names things internally — nobody types
+   * rather than the way the site names things internally, nobody types
    * "pillar III", they type "self discipline".
    */
   slug: string;
@@ -26,7 +26,7 @@ export const PILLARS: Pillar[] = [
     summary:
       "How to think clearly under uncertainty: base rates, second-order effects, probabilistic reasoning, and the specific ways a confident mind misleads itself.",
     intro:
-      "Most bad decisions are not made by people who lack information. They are made by people who had the information and reasoned over it badly — anchoring on the vivid case, ignoring the base rate, stopping at the first consequence. These lectures are about the mechanics of that failure and the habits that interrupt it.",
+      "Most bad decisions are not made by people who lack information. They are made by people who had the information and reasoned over it badly, anchoring on the vivid case, ignoring the base rate, stopping at the first consequence. These lectures are about the mechanics of that failure and the habits that interrupt it.",
   },
   {
     num: "II",
@@ -48,7 +48,7 @@ export const PILLARS: Pillar[] = [
     summary:
       "Self-discipline built as architecture rather than willpower: designing cues, friction, and environments so the behaviour you want becomes the path of least resistance.",
     intro:
-      "Discipline is usually sold as a character trait you either have or lack, which conveniently makes failure your fault and success unteachable. The evidence points elsewhere. People who look disciplined mostly arrange their lives so that less discipline is required — they build friction against what they don't want and remove it from what they do. These lectures are about that architecture.",
+      "Discipline is usually sold as a character trait you either have or lack, which conveniently makes failure your fault and success unteachable. The evidence points elsewhere. People who look disciplined mostly arrange their lives so that less discipline is required, they build friction against what they don't want and remove it from what they do. These lectures are about that architecture.",
   },
   {
     num: "IV",
@@ -59,7 +59,7 @@ export const PILLARS: Pillar[] = [
     summary:
       "Why leverage compounds and effort does not: playing long games, choosing the right positions, and designing a life that does not require heroic exertion to hold together.",
     intro:
-      "Effort is linear and finite. Leverage — skill that transfers, work that keeps paying, positions that improve on their own — compounds. Most people optimise the first and never touch the second, then wonder why twenty years of hard work produced so little. These lectures are about the difference.",
+      "Effort is linear and finite. Leverage (skill that transfers, work that keeps paying, positions that improve on their own) compounds. Most people optimise the first and never touch the second, then wonder why twenty years of hard work produced so little. These lectures are about the difference.",
   },
   {
     num: "V",
@@ -92,7 +92,7 @@ export const PILLARS: Pillar[] = [
     summary:
       "Athletic capacity beyond raw strength: conditioning, coordination, movement skill, and why the ability to fight belongs in a serious education.",
     intro:
-      "A strong body that cannot move well is a half-built one. Athleticism is coordination, conditioning, and skill under pressure — capacities that decay quietly and are far easier to keep than to rebuild. These lectures are about the parts of physical development that a barbell alone will not give you.",
+      "A strong body that cannot move well is a half-built one. Athleticism is coordination, conditioning, and skill under pressure, capacities that decay quietly and are far easier to keep than to rebuild. These lectures are about the parts of physical development that a barbell alone will not give you.",
   },
   {
     num: "VIII",
@@ -103,7 +103,7 @@ export const PILLARS: Pillar[] = [
     summary:
       "Sleep as the floor everything else stands on: circadian light, recovery debt, and why no amount of discipline compensates for chronic under-sleeping.",
     intro:
-      "Sleep is the one input that degrades everything else when it is short — judgement, mood, appetite regulation, training adaptation, the willingness to do hard things at all. It is also the input people trade away first, because the cost is invisible for about a week. These lectures make the cost visible.",
+      "Sleep is the one input that degrades everything else when it is short, judgement, mood, appetite regulation, training adaptation, the willingness to do hard things at all. It is also the input people trade away first, because the cost is invisible for about a week. These lectures make the cost visible.",
   },
   {
     num: "IX",
@@ -112,7 +112,7 @@ export const PILLARS: Pillar[] = [
     slug: "nutrition",
     headline: "Nutrition",
     summary:
-      "What survives every nutrition argument: energy balance, protein, and the discipline of the plate — without ideology, supplements, or a diet to join.",
+      "What survives every nutrition argument: energy balance, protein, and the discipline of the plate, without ideology, supplements, or a diet to join.",
     intro:
       "Nutrition discourse is unusually loud relative to how much is actually contested. A small number of things are well established and boring; almost everything being argued about sits several decimal places further out. These lectures stay with the part that holds.",
   },
@@ -125,18 +125,18 @@ export const PILLARS: Pillar[] = [
     summary:
       "Purpose found through action rather than declaration: work as a source of meaning, eudaimonia over happiness, and why searching for your passion is the wrong instruction.",
     intro:
-      "The instruction to find your purpose implies it is somewhere waiting, fully formed, and that the task is search. In practice purpose accretes from work you have already done — it is built, noticed afterwards, and rarely announced in advance. These lectures are about the building.",
+      "The instruction to find your purpose implies it is somewhere waiting, fully formed, and that the task is search. In practice purpose accretes from work you have already done; it is built, noticed afterwards, and rarely announced in advance. These lectures are about the building.",
   },
   {
     num: "XI",
     name: "Philosophy",
-    note: "Stoa, Dhamma, Junzi — read slowly.",
+    note: "Stoa, Dhamma, Junzi, read slowly.",
     slug: "practical-philosophy",
     headline: "Practical philosophy",
     summary:
       "Stoicism, Buddhism and Confucian thought read as operating instructions rather than aesthetics: craving, mortality, virtue, and the examined life.",
     intro:
-      "Stoicism has been flattened into a wallpaper aesthetic and a quote account. Read properly it is a demanding, specific technology for living — as is what the Buddhists worked out about craving, and what the Confucians worked out about becoming a cultivated person. These lectures read them slowly, as instructions.",
+      "Stoicism has been flattened into a wallpaper aesthetic and a quote account. Read properly it is a demanding, specific technology for living, as is what the Buddhists worked out about craving, and what the Confucians worked out about becoming a cultivated person. These lectures read them slowly, as instructions.",
   },
   {
     num: "XII",
@@ -166,10 +166,8 @@ export function getPillarBySlug(slug: string): Pillar | undefined {
  * Given a lecture's primary pillar and any secondary pillars, return the full
  * pillar records (deduped, in canonical order) that the lecture draws on.
  */
-export function getLecturePillars(
-  primary: string,
-  secondary: string[] = [],
-): Pillar[] {
+export function getLecturePillars(primary: string,
+  secondary: string[] = []): Pillar[] {
   const wanted = new Set<string>([primary, ...secondary]);
   return PILLARS.filter((p) => wanted.has(p.num));
 }

@@ -14,14 +14,18 @@
 export const THEMES = [
   {
     id: "classroom",
+    /** PayPal draws its own buttons; this is the nearest of its five. */
+    paypal: "black",
     glyph: "教",
     label: "Classroom",
     japanese: "教室",
-    /** Shown on hover — one line on what the room feels like. */
+    /** Shown on hover, one line on what the room feels like. */
     note: "Afternoon light, chalk dust, paper",
   },
   {
     id: "rooftop",
+    /** PayPal draws its own buttons; this is the nearest of its five. */
+    paypal: "white",
     glyph: "空",
     label: "Rooftop",
     japanese: "屋上",
@@ -29,6 +33,8 @@ export const THEMES = [
   },
   {
     id: "white-room",
+    /** PayPal draws its own buttons; this is the nearest of its five. */
+    paypal: "black",
     glyph: "白",
     label: "White Room",
     japanese: "ホワイトルーム",
@@ -36,6 +42,8 @@ export const THEMES = [
   },
   {
     id: "lights-out",
+    /** PayPal draws its own buttons; this is the nearest of its five. */
+    paypal: "white",
     glyph: "夜",
     label: "Lights Out",
     japanese: "消灯",
@@ -43,6 +51,8 @@ export const THEMES = [
   },
   {
     id: "sakura",
+    /** PayPal draws its own buttons; this is the nearest of its five. */
+    paypal: "black",
     glyph: "桜",
     label: "Sakura",
     japanese: "桜",
@@ -52,9 +62,23 @@ export const THEMES = [
 
 export type ThemeId = (typeof THEMES)[number]["id"];
 
-export const DEFAULT_THEME: ThemeId = "classroom";
+/**
+ * The white room is where the site starts.
+ *
+ * It is the least decorated of the five and the one the first lecture is about:
+ * no warmth, nothing on the walls, nothing to look at but the words. A reader
+ * arriving for the first time should meet the argument before they meet a mood.
+ */
+export const DEFAULT_THEME: ThemeId = "white-room";
 
 export const THEME_IDS = THEMES.map((t) => t.id) as readonly ThemeId[];
+
+/** PayPal's own palette only has five entries; this picks the least loud. */
+export type PaypalColor = (typeof THEMES)[number]["paypal"];
+
+export function paypalColorFor(theme: ThemeId): PaypalColor {
+  return THEMES.find((t) => t.id === theme)?.paypal ?? "black";
+}
 
 export const STORAGE_KEY = "ba-theme";
 
@@ -65,7 +89,7 @@ export function isThemeId(value: unknown): value is ThemeId {
 /**
  * Applied before first paint by an inline script in the document head, and
  * again by the provider on every change. Kept here as a string so the two can
- * never drift apart — a mismatch shows up as a flash of the wrong room.
+ * never drift apart, a mismatch shows up as a flash of the wrong room.
  */
 export const NO_FLASH_SCRIPT = `
 (function(){

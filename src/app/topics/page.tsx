@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     type: "website",
     title: `Topics · ${SITE_NAME}`,
     description:
-      "Self-discipline, clear thinking, emotional regulation, strategy, strength, purpose — the twelve subjects these lectures work through.",
+      "Self-discipline, clear thinking, emotional regulation, strategy, strength, purpose, the twelve subjects these lectures work through.",
     url: absoluteUrl("/topics"),
   },
 };
@@ -31,8 +31,7 @@ export default function TopicsPage() {
     count: getLecturesByPillar(p.num).filter((l) => l.published).length,
   }));
 
-  const jsonLd = jsonLdGraph(
-    {
+  const jsonLd = jsonLdGraph({
       "@type": "CollectionPage",
       "@id": absoluteUrl("/topics#page"),
       url: absoluteUrl("/topics"),
@@ -56,11 +55,9 @@ export default function TopicsPage() {
         url: absoluteUrl(`/topics/${p.slug}`),
         name: p.headline,
       })),
-    }
-  );
+    });
 
-  return (
-    <>
+  return (<>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -89,8 +86,7 @@ export default function TopicsPage() {
           </FadeIn>
 
           <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-px bg-[color:var(--color-rule)]/40 border border-[color:var(--color-rule)]/40">
-            {pillars.map((p, i) => (
-              <FadeIn key={p.slug} delay={i * 0.04}>
+            {pillars.map((p, i) => (<FadeIn key={p.slug} delay={i * 0.04}>
                 <Link
                   href={`/topics/${p.slug}`}
                   className="group flex h-full flex-col bg-[color:var(--color-bg)] p-8 hover:bg-[color:var(--color-bg-elevated)] transition-colors"
@@ -110,11 +106,9 @@ export default function TopicsPage() {
                     {p.count} published lecture{p.count === 1 ? "" : "s"} →
                   </p>
                 </Link>
-              </FadeIn>
-            ))}
+              </FadeIn>))}
           </div>
         </div>
       </div>
-    </>
-  );
+    </>);
 }

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   const local = priceConfigFor(country);
 
   // PayPal cannot settle every currency. When it cannot settle the reader's,
-  // quote USD tiers rather than a converted local amount — round numbers the
+  // quote USD tiers rather than a converted local amount, round numbers the
   // reader recognises beat an exact conversion nobody asked for.
   const settleable = paypalSupports(local.currency);
   const cfg = settleable ? local : priceConfigFor("US");
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
     // Set when we had to swap the reader's own currency out, so the panel can
     // say why the amounts are in dollars.
     originalCurrency: settleable ? null : local.currency,
-    // Public by design — the browser SDK needs it in a script URL. The secret
+    // Public by design, the browser SDK needs it in a script URL. The secret
     // never leaves the server.
     clientId: paypalConfigured() ? getPaypalClientId() : null,
     env: isLive() ? "live" : "sandbox",

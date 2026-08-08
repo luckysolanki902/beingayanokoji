@@ -12,7 +12,7 @@
  *     Money arithmetic in floating point drifts, and a drifting charge is a
  *     charge the reader did not agree to.
  *  2. Currencies do not all use 1/100 subunits, and PayPal rejects an amount
- *     carrying more precision than the currency allows — "1000.00" JPY is an
+ *     carrying more precision than the currency allows, "1000.00" JPY is an
  *     error, not a harmless rounding. So the exponent lives with the price
  *     table, not scattered through the charge math.
  *
@@ -37,14 +37,12 @@ export interface PriceConfig {
   decimals: number;
 }
 
-function cfg(
-  currency: string,
+function cfg(currency: string,
   symbol: string,
   presets: [number, number, number],
   min: number,
   max: number,
-  decimals = 2
-): PriceConfig {
+  decimals = 2): PriceConfig {
   return {
     currency,
     symbol,
@@ -133,22 +131,18 @@ export interface ResolvedAmount {
  *
  * A tier id resolves against the server's own table, so it cannot carry an
  * amount. A custom amount is clamped to the table's bounds and rounded to the
- * currency's real precision — a request for "4.999" becomes 5.00, not a value
+ * currency's real precision, a request for "4.999" becomes 5.00, not a value
  * PayPal would reject.
  *
  * Throws when neither a valid tier nor a usable custom amount was sent; the
  * caller turns that into a message the reader can act on.
  */
-export function resolveAmount(
-  config: PriceConfig,
-  input: { tier?: unknown; amount?: unknown }
-): ResolvedAmount {
+export function resolveAmount(config: PriceConfig,
+  input: { tier?: unknown; amount?: unknown }): ResolvedAmount {
   const factor = 10 ** config.decimals;
 
-  if (
-    typeof input.tier === "string" &&
-    Object.hasOwn(config.presets, input.tier)
-  ) {
+  if (typeof input.tier === "string" &&
+    Object.hasOwn(config.presets, input.tier)) {
     const tier = input.tier as TierId;
     const major = config.presets[tier];
     return { subunits: Math.round(major * factor), major, tier };
@@ -168,10 +162,8 @@ export function resolveAmount(
   // Round to the currency's precision first, then bound it. Doing it the other
   // way round can round a clamped maximum back above the maximum.
   const subunits = Math.round(raw * factor);
-  const bounded = Math.min(
-    Math.max(subunits, Math.round(config.min * factor)),
-    Math.round(config.max * factor)
-  );
+  const bounded = Math.min(Math.max(subunits, Math.round(config.min * factor)),
+    Math.round(config.max * factor));
 
   return { subunits: bounded, major: bounded / factor, tier: "custom" };
 }

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { SupportButton } from "@/components/SupportButton";
 import { SupportBlock } from "@/components/Support";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
+import { useStudent } from "@/components/progress/StudentProvider";
 import { PILLARS } from "@/lib/pillars";
 
 function useIsPrint() {
@@ -16,7 +17,7 @@ function useIsPrint() {
  * The chrome is a school noticeboard, not an app bar.
  *
  * Navigation sits flush left in small caps, the theme switcher flush right, and
- * the masthead is centred underneath between two rules — the arrangement of a
+ * the masthead is centred underneath between two rules, the arrangement of a
  * printed bulletin rather than a website header. It scrolls away with the page
  * instead of sticking, because a fixed bar on top of a 5,000-word essay is a
  * permanent reminder that you are on a website.
@@ -28,8 +29,7 @@ export function SiteHeader() {
 
   const isHome = pathname === "/";
 
-  return (
-    <header className="relative">
+  return (<header className="relative">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-5 md:px-8 md:pt-6">
         <nav className="flex items-center gap-5 text-[11px] uppercase tracking-[0.18em] text-[color:var(--muted)] md:gap-7 md:text-xs">
           <Link
@@ -62,14 +62,16 @@ export function SiteHeader() {
           <SupportButton />
         </nav>
 
-        <ThemeSwitcher />
+        <div className="flex items-center gap-4 md:gap-5">
+          <StudentBadge />
+          <ThemeSwitcher />
+        </div>
       </div>
 
       {/* The masthead is the site's nameplate, so it appears at full size on
-          the front page and shrinks to a single line everywhere else — the
+          the front page and shrinks to a single line everywhere else, the
           reader on lecture 34 does not need reintroducing. */}
-      {isHome ? (
-        <div className="relative mt-10 md:mt-14">
+      {isHome ? (<div className="relative mt-10 md:mt-14">
           <div
             className="genkou-grid genkou-fade pointer-events-none absolute inset-0"
             aria-hidden="true"
@@ -87,9 +89,7 @@ export function SiteHeader() {
             </p>
             <div className="mt-6 border-t border-[color:var(--rule)] md:mt-7" />
           </div>
-        </div>
-      ) : (
-        <div className="mx-auto mt-8 max-w-3xl px-5 text-center md:mt-10">
+        </div>) : (<div className="mx-auto mt-8 max-w-3xl px-5 text-center md:mt-10">
           <Link
             href="/"
             className="font-serif inline-block text-xs uppercase tracking-[0.3em] text-[color:var(--muted)] transition-colors hover:text-[color:var(--fg)] md:text-sm"
@@ -97,23 +97,54 @@ export function SiteHeader() {
             Being Ayanokoji
           </Link>
           <div className="mt-6 border-t border-[color:var(--rule)]" />
-        </div>
-      )}
-    </header>
-  );
+        </div>)}
+    </header>);
+}
+
+/**
+ * The class letter and the balance, or a way in.
+ *
+ * Deliberately two glyphs and a number rather than an avatar and a dropdown:
+ * the only two things a student needs from the chrome are which class they are
+ * in and what they can afford, and both are legible at a glance from the corner
+ * of a page they are meant to be reading rather than operating.
+ */
+function StudentBadge() {
+  const student = useStudent();
+
+  if (!student.signedIn) {
+    return (<Link
+        href="/enroll"
+        className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--muted)] transition-colors hover:text-[color:var(--fg)] md:text-xs"
+      >
+        Enrol
+      </Link>);
+  }
+
+  return (<Link
+      href="/record"
+      title={`${student.name} · ${student.points.toLocaleString()} personal points`}
+      className="group flex items-center gap-2 transition-colors hover:text-[color:var(--fg)]"
+    >
+      <span className="genkou-cell flex h-6 w-6 shrink-0 font-serif text-[11px] text-[color:var(--muted)] transition-colors group-hover:border-[color:var(--accent)] group-hover:text-[color:var(--accent)]">
+        {student.currentClass === "GRAD" ? "卒" : student.currentClass}
+      </span>
+      <span className="font-mono text-[11px] tabular-nums text-[color:var(--muted)] transition-colors group-hover:text-[color:var(--accent)]">
+        {student.points.toLocaleString()}
+      </span>
+    </Link>);
 }
 
 export function SiteFooter() {
   if (useIsPrint()) return null;
 
-  return (
-    <footer className="mt-28 md:mt-36">
+  return (<footer className="mt-28 md:mt-36">
       <div className="mx-auto max-w-3xl px-5 md:px-8">
         <SupportBlock source="footer" />
       </div>
 
       {/* Every subject reachable from every page. This is the bulk of the
-          site's internal linking — without it the topic hubs would depend on
+          site's internal linking, without it the topic hubs would depend on
           being found through individual lectures. */}
       <nav
         aria-label="Topics"
@@ -123,16 +154,14 @@ export function SiteFooter() {
           Browse by subject
         </p>
         <ul className="mx-auto flex max-w-3xl flex-wrap justify-center gap-x-6 gap-y-3 text-sm text-[color:var(--muted)]">
-          {PILLARS.map((p) => (
-            <li key={p.slug}>
+          {PILLARS.map((p) => (<li key={p.slug}>
               <Link
                 href={`/topics/${p.slug}`}
                 className="transition-colors hover:text-[color:var(--accent)]"
               >
                 {p.headline}
               </Link>
-            </li>
-          ))}
+            </li>))}
         </ul>
       </nav>
 
@@ -167,6 +196,5 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
 }

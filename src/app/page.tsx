@@ -4,7 +4,10 @@ import { AnimatedText, FadeIn } from "@/components/AnimatedText";
 import { BlinkingCursor } from "@/components/Cursor";
 import { getAllLectures } from "@/lib/lectures";
 import { PILLARS } from "@/lib/pillars";
+import Image from "next/image";
 import { EnrollmentPanel } from "@/components/progress/EnrollmentPanel";
+import { getStudentRecord, type StudentRecord as StudentRecordProp } from "@/lib/progress/state";
+import { SITE_IMAGES } from "@/lib/lecture-images";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -15,7 +18,7 @@ import {
 
 export const metadata: Metadata = {
   title:
-    "Being Ayanokoji — Long-form lectures on self-discipline and clear thinking",
+    "Being Ayanokoji, Long-form lectures on self-discipline and clear thinking",
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
 };
@@ -23,7 +26,7 @@ export const metadata: Metadata = {
 /**
  * Questions a reader actually arrives with, answered plainly.
  *
- * These are here because they are worth answering, not because of the markup —
+ * These are here because they are worth answering, not because of the markup
  * but the markup follows, and a question-shaped search is the one place a small
  * site can still out-rank a large one.
  */
@@ -34,7 +37,11 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Is it free?",
-    a: "Entirely. There is no paywall, no account, no newsletter and no upsell. Readers can contribute through PayPal if a lecture was worth something to them, and nothing changes if they don't.",
+    a: "The first lecture is, and so is its examination. After that the curriculum runs on personal points: five points for every examination question you answer correctly at the first attempt, and a hundred points to open a lecture. You can earn your way through the whole thing without paying anything, or buy points at ten to the dollar if you would rather not wait. There is no subscription and no newsletter.",
+  },
+  {
+    q: "What are personal points?",
+    a: "The school's currency, and the only thing it grades you on. They are earned by answering examination questions correctly the first time you meet them (a retake teaches you something and pays you nothing) and spent on opening lectures, on being promoted into a whole class at half price, or on anything else the school sells.",
   },
   {
     q: "How is this different from ordinary self-improvement writing?",
@@ -42,20 +49,20 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Where should I start?",
-    a: "The lectures are arranged in a recommended reading order on the index page. If you would rather start from a problem than from the beginning, the topics pages group everything by subject — self-discipline, clear thinking, emotional regulation, sleep, strength, purpose.",
+    a: "The lectures are arranged in a recommended reading order on the index page. If you would rather start from a problem than from the beginning, the topics pages group everything by subject, self-discipline, clear thinking, emotional regulation, sleep, strength, purpose.",
   },
   {
     q: "Why is it named after Ayanokoji?",
-    a: "Kiyotaka Ayanokoji is the lens, not the subject. He embodies a particular synthesis — deep observation, restrained action, calculated patience, emotional opacity — that the site is organised around. It is not fan writing, and no knowledge of the source material is needed.",
+    a: "Kiyotaka Ayanokoji is the lens, not the subject. He embodies a particular synthesis (deep observation, restrained action, calculated patience, emotional opacity) that the site is organised around. It is not fan writing, and no knowledge of the source material is needed.",
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const record = await getStudentRecord();
   const all = getAllLectures();
   const lectures = all.slice(0, 3);
 
-  const jsonLd = jsonLdGraph(
-    {
+  const jsonLd = jsonLdGraph({
       "@type": "WebPage",
       "@id": absoluteUrl("/#webpage"),
       url: absoluteUrl("/"),
@@ -78,48 +85,30 @@ export default function HomePage() {
         name: q,
         acceptedAnswer: { "@type": "Answer", text: a },
       })),
-    }
-  );
+    });
 
-  return (
-    <>
+  return (<>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Hero
-        firstSlug={all[0]?.slug ?? "#"}
-        orderedSlugs={all.map((l) => l.slug)}
-        nextUp={all
-          .filter((l) => l.published)
-          .map((l) => ({ slug: l.slug, title: l.title }))}
-      />
+      <Hero record={record} />
       <Briefing />
       <Manifesto />
       <RecentLectures lectures={lectures} />
       <Pillars />
       <Questions />
-    </>
-  );
+    </>);
 }
 
 /**
  * The masthead in the site chrome carries the name, so the front page opens on
- * the argument instead of repeating it. The thesis is set as the lead — the
+ * the argument instead of repeating it. The thesis is set as the lead, the
  * most characteristic thing this site has is its sentences, so those go first
  * rather than a hero image or a row of statistics.
  */
-function Hero({
-  firstSlug,
-  orderedSlugs,
-  nextUp,
-}: {
-  firstSlug: string;
-  orderedSlugs: string[];
-  nextUp: { slug: string; title: string }[];
-}) {
-  return (
-    <section className="px-5 pt-14 pb-20 md:px-8 md:pt-20 md:pb-24">
+function Hero({ record }: { record: StudentRecordProp }) {
+  return (<section className="px-5 pt-14 pb-20 md:px-8 md:pt-20 md:pb-24">
       <div className="mx-auto max-w-3xl text-center">
         <FadeIn>
           <p className="font-hand text-xs tracking-[0.24em] text-[color:var(--muted)]">
@@ -150,33 +139,28 @@ function Hero({
         <FadeIn delay={1}>
           <p className="mx-auto mt-9 max-w-xl text-[15px] leading-[1.85] text-[color:var(--muted)] md:text-base">
             Fifty lectures on self-discipline, clear thinking, emotional
-            regulation, strength, strategy and purpose — arranged into five
+            regulation, strength, strategy and purpose, arranged into five
             classes. Everyone starts at the bottom. Each lecture ends in an
-            examination, and the next one opens when you pass it.
+            examination, and what you score on it is what buys the next one.
             <BlinkingCursor className="ml-1 text-[color:var(--accent)]" />
           </p>
         </FadeIn>
 
-        <EnrollmentPanel
-          orderedSlugs={orderedSlugs}
-          firstSlug={firstSlug}
-          nextUp={nextUp}
-        />
+        <EnrollmentPanel record={record} />
 
         <FadeIn delay={0.2}>
           <p className="mt-7 text-[11px] uppercase tracking-[0.2em] text-[color:var(--faint)]">
-            Free to read · No account · No newsletter
+            First lecture free · No verification · No newsletter
           </p>
         </FadeIn>
       </div>
-    </section>
-  );
+    </section>);
 }
 
 /**
  * The homeroom teacher's briefing.
  *
- * Written in her register — flat, unflattering, no encouragement — because the
+ * Written in her register (flat, unflattering, no encouragement) because the
  * ordinary version of this section ("unlock your potential") is the exact thing
  * the reader has already ignored a hundred times. The persuasion here is that
  * it declines to persuade.
@@ -189,17 +173,29 @@ function Briefing() {
     "That is the entire point. Nobody is going to congratulate you for finishing, and nothing is unlocked at the end but the next piece of work. Begin, or don't.",
   ];
 
-  return (
-    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+  return (<section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-2xl">
         <FadeIn>
-          <p className="font-hand mb-10 text-xs tracking-[0.24em] text-[color:var(--muted)]">
+          <p className="font-hand mb-8 text-xs tracking-[0.24em] text-[color:var(--muted)]">
             担任より · From your homeroom teacher
           </p>
         </FadeIn>
 
-        {lines.map((line, i) => (
-          <FadeIn key={i} delay={i * 0.1}>
+        {/* Her at the board with the point totals written up, the briefing is
+            in her voice, so the picture is of the moment she gives it. */}
+        <FadeIn>
+          <figure className="relative mb-12 aspect-[21/9] w-full overflow-hidden border border-[color:var(--rule)] bg-[color:var(--bg-elevated)]">
+            <Image
+              src={SITE_IMAGES.briefing.src}
+              alt={SITE_IMAGES.briefing.alt}
+              fill
+              sizes="(max-width: 768px) 100vw, 672px"
+              className="object-cover"
+            />
+          </figure>
+        </FadeIn>
+
+        {lines.map((line, i) => (<FadeIn key={i} delay={i * 0.1}>
             <p
               className={`font-serif leading-[1.7] tracking-tight ${
                 i === 0
@@ -209,8 +205,7 @@ function Briefing() {
             >
               {line}
             </p>
-          </FadeIn>
-        ))}
+          </FadeIn>))}
 
         <FadeIn delay={0.5}>
           <p className="mt-10 border-l-2 border-[color:var(--accent)] pl-5 text-sm text-[color:var(--faint)]">
@@ -219,8 +214,7 @@ function Briefing() {
           </p>
         </FadeIn>
       </div>
-    </section>
-  );
+    </section>);
 }
 
 function Manifesto() {
@@ -232,8 +226,7 @@ function Manifesto() {
     "Results over recognition.",
   ];
 
-  return (
-    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+  return (<section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-12">
@@ -241,26 +234,22 @@ function Manifesto() {
           </p>
         </FadeIn>
         <ul className="space-y-6">
-          {lines.map((line, i) => (
-            <FadeIn key={line} delay={i * 0.12}>
+          {lines.map((line, i) => (<FadeIn key={line} delay={i * 0.12}>
               <li className="font-serif text-3xl md:text-5xl leading-tight tracking-tight">
                 <span className="text-[color:var(--color-faint)] text-base align-middle mr-6 font-sans">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {line}
               </li>
-            </FadeIn>
-          ))}
+            </FadeIn>))}
         </ul>
       </div>
-    </section>
-  );
+    </section>);
 }
 
 function RecentLectures({ lectures }: { lectures: ReturnType<typeof getAllLectures> }) {
   if (lectures.length === 0) return null;
-  return (
-    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+  return (<section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <div className="flex items-end justify-between mb-12">
@@ -282,8 +271,7 @@ function RecentLectures({ lectures }: { lectures: ReturnType<typeof getAllLectur
         </FadeIn>
 
         <div className="divide-y divide-[color:var(--color-rule)]/40 border-y border-[color:var(--color-rule)]/40">
-          {lectures.map((lec, i) => (
-            <FadeIn key={lec.slug} delay={i * 0.08}>
+          {lectures.map((lec, i) => (<FadeIn key={lec.slug} delay={i * 0.08}>
               <Link
                 href={`/lectures/${lec.slug}`}
                 className="group block py-8 hover:bg-[color:var(--color-bg-elevated)]/30 transition-colors"
@@ -302,19 +290,16 @@ function RecentLectures({ lectures }: { lectures: ReturnType<typeof getAllLectur
                   </div>
                 </div>
               </Link>
-            </FadeIn>
-          ))}
+            </FadeIn>))}
         </div>
       </div>
-    </section>
-  );
+    </section>);
 }
 
 function Pillars() {
   const pillars = PILLARS;
 
-  return (
-    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+  return (<section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-4xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-3">
@@ -325,13 +310,12 @@ function Pillars() {
           </h2>
           <p className="mb-16 max-w-2xl text-[color:var(--color-muted)] leading-relaxed">
             Each pillar has its own page collecting every lecture that touches
-            it — start from whichever one names your current bottleneck.
+            it, start from whichever one names your current bottleneck.
           </p>
         </FadeIn>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[color:var(--color-rule)]/40">
-          {pillars.map((p, i) => (
-            <FadeIn key={p.num} delay={i * 0.03}>
+          {pillars.map((p, i) => (<FadeIn key={p.num} delay={i * 0.03}>
               <Link
                 href={`/topics/${p.slug}`}
                 className="flex flex-col bg-[color:var(--color-bg)] p-8 h-full min-h-[160px] group hover:bg-[color:var(--color-bg-elevated)] transition-colors"
@@ -348,12 +332,10 @@ function Pillars() {
                   {p.note}
                 </p>
               </Link>
-            </FadeIn>
-          ))}
+            </FadeIn>))}
         </div>
       </div>
-    </section>
-  );
+    </section>);
 }
 
 /**
@@ -362,8 +344,7 @@ function Pillars() {
  * arriving cold deserves the answers anyway.
  */
 function Questions() {
-  return (
-    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+  return (<section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-3">
@@ -375,8 +356,7 @@ function Questions() {
         </FadeIn>
 
         <dl className="divide-y divide-[color:var(--color-rule)]/40 border-y border-[color:var(--color-rule)]/40">
-          {FAQ.map(({ q, a }, i) => (
-            <FadeIn key={q} delay={i * 0.05}>
+          {FAQ.map(({ q, a }, i) => (<FadeIn key={q} delay={i * 0.05}>
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 py-8">
                 <dt className="md:col-span-5 font-serif text-xl md:text-2xl tracking-tight leading-snug">
                   {q}
@@ -385,10 +365,8 @@ function Questions() {
                   {a}
                 </dd>
               </div>
-            </FadeIn>
-          ))}
+            </FadeIn>))}
         </dl>
       </div>
-    </section>
-  );
+    </section>);
 }

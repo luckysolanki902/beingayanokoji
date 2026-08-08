@@ -3,7 +3,7 @@ import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
 /**
  * A student.
  *
- * Email and a password, nothing else required — there is no verification step,
+ * Email and a password, nothing else required; there is no verification step,
  * no profile to fill in, and no third party told that someone reads this site.
  * The account exists for one reason: a record of the curriculum that survives
  * clearing a browser.
@@ -15,9 +15,8 @@ import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
  * doubted.
  */
 
-const UserSchema = new Schema(
-  {
-    /** Stored lowercased and trimmed — the unique index is on this exact form. */
+const UserSchema = new Schema({
+    /** Stored lowercased and trimmed, the unique index is on this exact form. */
     email: {
       type: String,
       required: true,
@@ -32,7 +31,7 @@ const UserSchema = new Schema(
     name: { type: String, trim: true, maxlength: 60 },
 
     /**
-     * Personal points — the site's whole economy in one integer.
+     * Personal points, the site's whole economy in one integer.
      *
      * Never written directly. Every change goes through `spendPoints` /
      * `creditPoints` in `src/lib/economy/points.ts`, which move this field and
@@ -49,7 +48,7 @@ const UserSchema = new Schema(
      * The highest class the student has been *shown* the promotion for.
      *
      * The class they are actually in is derived from their unlocks and passes,
-     * never stored — a stored copy is a second source of truth that drifts the
+     * never stored, a stored copy is a second source of truth that drifts the
      * first time a lecture is reordered. This field only stops the promotion
      * overlay firing twice for the same class.
      */
@@ -57,8 +56,7 @@ const UserSchema = new Schema(
 
     lastSeenAt: { type: Date, default: Date.now },
   },
-  { timestamps: true }
-);
+  { timestamps: true });
 
 export type UserDoc = InferSchemaType<typeof UserSchema> & { _id: mongoose.Types.ObjectId };
 

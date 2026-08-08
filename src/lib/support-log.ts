@@ -9,7 +9,7 @@ import type { PaymentFacts } from "@/lib/paypal";
  * trail that says which page a contribution came from.
  *
  * It is written as one function rather than scattered console.log calls so that
- * adding a real store later — or an email on each payment — is one edit here
+ * adding a real store later (or an email on each payment) is one edit here
  * instead of four across the routes.
  */
 
@@ -42,19 +42,15 @@ export interface SupportRecord {
 
 export function recordSupport(record: SupportRecord): void {
   // One line, JSON, so it stays greppable in the Vercel log drain.
-  console.log(
-    "[support] " +
-      JSON.stringify({ ...record, at: new Date().toISOString() })
-  );
+  console.log("[support] " +
+      JSON.stringify({ ...record, at: new Date().toISOString() }));
 }
 
 /** Fold PayPal's flattened facts into a record, dropping the empty fields. */
-export function recordFromFacts(
-  event: SupportEvent,
+export function recordFromFacts(event: SupportEvent,
   orderId: string,
   facts: PaymentFacts,
-  extra: Partial<SupportRecord> = {}
-): SupportRecord {
+  extra: Partial<SupportRecord> = {}): SupportRecord {
   return {
     event,
     orderId,

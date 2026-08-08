@@ -8,8 +8,11 @@ import { AnimatedText, FadeIn } from "@/components/AnimatedText";
 import { PillarLegend } from "@/components/PillarLegend";
 import { getLecturePillars, getPillar } from "@/lib/pillars";
 import { curriculumIndex, getClass } from "@/lib/curriculum";
-import { getQuiz } from "@/lib/quizzes";
+import { getQuiz, publicQuiz } from "@/lib/quizzes";
+import { getStudentRecord } from "@/lib/progress/state";
 import { GatedArticle } from "@/components/progress/GatedArticle";
+import { LectureBanner } from "@/components/LectureBanner";
+import { getLectureImage } from "@/lib/lecture-images";
 import { LectureExam } from "@/components/progress/LectureExam";
 import {
   SITE_NAME,
@@ -21,6 +24,27 @@ import {
 
 export async function generateStaticParams() {
   return getAllLectureSlugs().map((slug) => ({ slug }));
+}
+
+/**
+ * How a lecture describes its own accessibility to a crawler.
+ *
+ * The first lecture is free to everyone and says so. The rest are behind a
+ * hundred points, and say *that*, naming the CSS class the gated body is
+ * rendered into, so a crawler indexing the full text knows it is indexing
+ * something a reader will be asked to pay for. This is the whole basis on
+ * which serving the content to bots and not to readers is honest.
+ */
+function paywallNodes(free: boolean) {
+  if (free) return { isAccessibleForFree: true };
+  return {
+    isAccessibleForFree: false,
+    hasPart: {
+      "@type": "WebPageElement",
+      isAccessibleForFree: false,
+      cssSelector: ".paywall",
+    },
+  };
 }
 
 export async function generateMetadata({
@@ -78,17 +102,23 @@ export default async function LecturePage({
   const prev = idx > 0 ? all[idx - 1] : null;
   const next = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : null;
 
-  // Where this lecture sits in the curriculum, and the whole reading order —
-  // the gate and the exam both need the sequence, and the client cannot read
-  // the markdown directory to work it out for itself.
-  const orderedSlugs = all.map((l) => l.slug);
+  // Where this lecture sits in the curriculum, and where the reader sits in
+  // relation to it. Both are resolved here, on the server, before anything is
+  // sent, the gate below is the difference between a lecture bought and a
+  // lecture not, so it cannot be a decision made after hydration.
   const entry = curriculumIndex(all)[slug];
   const quiz = getQuiz(slug);
+  const banner = getLectureImage(slug);
+  const record = await getStudentRecord();
+  const state = record.bySlug[slug];
+  const unlocked = state?.unlocked ?? false;
+  const nextUnlocked = next ? (record.bySlug[next.slug]?.unlocked ?? false) : false;
+  // Free *to everyone*, not "free to this reader", the structured data
+  // describes the lecture, not the session that happened to request it.
+  const freeToAll = (entry?.index ?? 0) === 0;
 
-  const nav = (prev || next) && (
-    <nav className="mx-auto max-w-3xl mt-24 pt-12 border-t border-[color:var(--color-rule)]/40 grid grid-cols-2 gap-8">
-      {prev ? (
-        <Link
+  const nav = (prev || next) && (<nav className="mx-auto max-w-3xl mt-24 pt-12 border-t border-[color:var(--color-rule)]/40 grid grid-cols-2 gap-8">
+      {prev ? (<Link
           href={`/lectures/${prev.slug}`}
           className="group block hover:bg-[color:var(--color-bg-elevated)]/30 p-4 -m-4 transition-colors"
         >
@@ -98,12 +128,8 @@ export default async function LecturePage({
           <div className="font-serif text-lg group-hover:text-[color:var(--color-accent)] transition-colors">
             {prev.title}
           </div>
-        </Link>
-      ) : (
-        <div />
-      )}
-      {next ? (
-        <Link
+        </Link>) : (<div />)}
+      {next ? (<Link
           href={`/lectures/${next.slug}`}
           className="group block text-right hover:bg-[color:var(--color-bg-elevated)]/30 p-4 -m-4 transition-colors"
         >
@@ -113,16 +139,11 @@ export default async function LecturePage({
           <div className="font-serif text-lg group-hover:text-[color:var(--color-accent)] transition-colors">
             {next.title}
           </div>
-        </Link>
-      ) : (
-        <div />
-      )}
-    </nav>
-  );
+        </Link>) : (<div />)}
+    </nav>);
 
   if (!lec.published) {
-    return (
-      <article className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
+    return (<article className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <header className="mx-auto max-w-3xl">
           <FadeIn>
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[color:var(--color-muted)] mb-8">
@@ -141,13 +162,11 @@ export default async function LecturePage({
             stagger={0.035}
           />
 
-          {lec.keyClaim && (
-            <FadeIn delay={0.4}>
+          {lec.keyClaim && (<FadeIn delay={0.4}>
               <p className="mt-8 font-serif italic text-xl md:text-2xl leading-relaxed text-[color:var(--color-muted)] border-l-2 border-[color:var(--color-accent)] pl-6">
                 {lec.keyClaim}
               </p>
-            </FadeIn>
-          )}
+            </FadeIn>)}
         </header>
 
         <FadeIn delay={0.6}>
@@ -166,15 +185,13 @@ export default async function LecturePage({
         </FadeIn>
 
         {nav}
-      </article>
-    );
+      </article>);
   }
 
   const url = absoluteUrl(`/lectures/${slug}`);
   const pillars = getLecturePillars(lec.pillar, lec.secondaryPillars);
 
-  const jsonLd = jsonLdGraph(
-    {
+  const jsonLd = jsonLdGraph({
       "@type": "Article",
       "@id": `${url}#article`,
       headline: lec.title,
@@ -187,7 +204,7 @@ export default async function LecturePage({
       inLanguage: "en",
       keywords: lec.tags?.join(", "),
       wordCount: lec.wordCount,
-      // ISO 8601 duration — the format schema.org expects, not "12 min".
+      // ISO 8601 duration, the format schema.org expects, not "12 min".
       timeRequired: `PT${lec.readingTimeMin}M`,
       articleSection: getPillar(lec.pillar)?.headline ?? undefined,
       // The subjects the lecture is *about*, linked to their topic pages so the
@@ -201,7 +218,12 @@ export default async function LecturePage({
       // publication date is worse than none.
       ...(lec.publishedAt ? { datePublished: lec.publishedAt } : {}),
       ...(lec.updatedAt ? { dateModified: lec.updatedAt } : {}),
-      isAccessibleForFree: true,
+      // The gated lectures are still served in full to crawlers, and this is
+      // what makes that legitimate rather than cloaking: the page declares the
+      // body paywalled and names the exact element it lives in, which is the
+      // arrangement Google documents for subscription content. Removing this
+      // while keeping the markup would be the thing that earns a penalty.
+      ...paywallNodes(freeToAll),
     },
     publisherNode(),
     breadcrumbNode([
@@ -209,7 +231,7 @@ export default async function LecturePage({
       { name: "Lectures", path: "/lectures" },
       { name: lec.title, path: `/lectures/${slug}` },
     ]),
-    // The lecture is a unit of a course, not a loose blog post — and it ends
+    // The lecture is a unit of a course, not a loose blog post, and it ends
     // in a real assessment. Both are declared so the curriculum's structure is
     // legible to a crawler and not only to a reader.
     {
@@ -222,7 +244,7 @@ export default async function LecturePage({
       timeRequired: `PT${lec.readingTimeMin}M`,
       isPartOf: { "@id": absoluteUrl("/lectures#course") },
       inLanguage: "en",
-      isAccessibleForFree: true,
+      isAccessibleForFree: freeToAll,
       provider: { "@id": absoluteUrl("/#organization") },
       ...(entry
         ? { position: entry.index + 1, educationalAlignment: {
@@ -237,18 +259,16 @@ export default async function LecturePage({
           {
             "@type": "Quiz",
             "@id": `${url}#exam`,
-            name: `Examination — ${lec.title}`,
+            name: `Examination, ${lec.title}`,
             about: { "@id": `${url}#unit` },
             educationalLevel: lec.difficulty ?? "introductory",
             numberOfQuestions: quiz.questions.length,
-            isAccessibleForFree: true,
+            isAccessibleForFree: freeToAll,
           },
         ]
-      : [])
-  );
+      : []));
 
-  return (
-    <>
+  return (<>
       <ScrollProgress />
       <script
         type="application/ld+json"
@@ -263,25 +283,19 @@ export default async function LecturePage({
                 Lectures
               </Link>
               <span className="text-[color:var(--color-faint)]">/</span>
-              {/* Links to the topic page rather than naming a pillar number —
+              {/* Links to the topic page rather than naming a pillar number
                   the number means nothing to a first-time reader, and the link
                   is what ties the essay to its subject hub. */}
-              {getPillar(lec.pillar) ? (
-                <Link
+              {getPillar(lec.pillar) ? (<Link
                   href={`/topics/${getPillar(lec.pillar)!.slug}`}
                   className="hover:text-[color:var(--color-fg)] transition-colors"
                 >
                   {getPillar(lec.pillar)!.headline}
-                </Link>
-              ) : (
-                <span>Pillar {lec.pillar}</span>
-              )}
-              {lec.difficulty && (
-                <>
+                </Link>) : (<span>Pillar {lec.pillar}</span>)}
+              {lec.difficulty && (<>
                   <span className="text-[color:var(--color-faint)]">/</span>
                   <span>{lec.difficulty}</span>
-                </>
-              )}
+                </>)}
             </div>
           </FadeIn>
 
@@ -292,13 +306,11 @@ export default async function LecturePage({
             stagger={0.035}
           />
 
-          {lec.keyClaim && (
-            <FadeIn delay={0.4}>
+          {lec.keyClaim && (<FadeIn delay={0.4}>
               <p className="mt-8 font-serif italic text-xl md:text-2xl leading-relaxed text-[color:var(--color-muted)] border-l-2 border-[color:var(--color-accent)] pl-6">
                 {lec.keyClaim}
               </p>
-            </FadeIn>
-          )}
+            </FadeIn>)}
 
           <FadeIn delay={0.6}>
             <div className="mt-8 flex items-center gap-6 text-xs text-[color:var(--color-muted)] font-mono">
@@ -314,29 +326,34 @@ export default async function LecturePage({
               </Link>
             </div>
           </FadeIn>
+
+          {banner && <LectureBanner image={banner} />}
         </header>
 
         <div className="mx-auto max-w-3xl">
           <GatedArticle
-            index={entry?.index ?? 0}
-            orderedSlugs={orderedSlugs}
+            slug={slug}
+            title={lec.title}
+            unlocked={unlocked}
+            published={lec.published}
             classId={entry?.classId ?? "D"}
             positionInClass={entry?.positionInClass ?? 1}
-            previousSlug={prev?.slug ?? null}
-            previousTitle={prev?.title ?? null}
+            signedIn={record.signedIn}
+            balance={record.points}
             // The exam goes through the gate too. Left outside it, a locked
-            // lecture's test was still reachable by deep link — which meant
-            // the curriculum could be unlocked from the middle without
-            // reading anything.
+            // lecture's test was still reachable by deep link, which now
+            // would mean earning points from a lecture nobody paid for.
             exam={
-              quiz ? (
-                <LectureExam
+              quiz ? (<LectureExam
                   slug={slug}
-                  quiz={quiz}
+                  quiz={publicQuiz(quiz)}
                   nextSlug={next?.slug ?? null}
                   nextTitle={next?.title ?? null}
-                />
-              ) : null
+                  nextUnlocked={nextUnlocked}
+                  signedIn={record.signedIn}
+                  alreadyPassed={state?.passed ?? false}
+                  bestScore={state?.bestScore ?? 0}
+                />) : null
             }
           >
             <Markdown content={lec.content} />
@@ -349,6 +366,5 @@ export default async function LecturePage({
 
         {nav}
       </article>
-    </>
-  );
+    </>);
 }

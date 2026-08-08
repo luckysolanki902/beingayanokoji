@@ -11,6 +11,7 @@ import {
   recordSupport,
   type SupportEvent,
 } from "@/lib/support-log";
+import { grantPointsForPayment } from "@/lib/economy/grant";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,8 +21,8 @@ export const dynamic = "force-dynamic";
  *
  * The browser capture path handles the ordinary case, but it only runs if the
  * reader's tab survives long enough to call it. This route is what records a
- * payment when it doesn't — a closed tab, blocked JavaScript, a network drop
- * between approval and capture — and it is the only path that hears about
+ * payment when it doesn't, a closed tab, blocked JavaScript, a network drop
+ * between approval and capture, and it is the only path that hears about
  * refunds and denials at all.
  *
  * Verification is a round trip to PayPal rather than a local HMAC, because
@@ -105,6 +106,15 @@ export async function POST(request: NextRequest) {
     }
 
     recordSupport(recordFromFacts(mapped, orderId, facts, { via: "webhook" }));
+
+    // The reliable half of the grant. The browser usually gets here first, but
+    // a reader who closed the tab on PayPal's confirmation screen never does
+    // for them this is the only path, and the account it credits is the one
+    // recorded when the order was created. Granting twice is not possible: the
+    // `pointsGranted` flag is flipped under a conditional update.
+    if (mapped === "webhook.captured") {
+      await grantPointsForPayment(null, orderId, facts, "webhook");
+    }
   } catch (error) {
     // 500 so PayPal retries this delivery.
     console.error("support/paypal/webhook error:", error);

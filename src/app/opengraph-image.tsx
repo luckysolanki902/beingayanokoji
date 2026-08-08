@@ -1,14 +1,12 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "Being Ayanokoji — long-form lectures on self-discipline and clear thinking";
+  "Being Ayanokoji, long-form lectures on self-discipline and clear thinking";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OG() {
-  return new ImageResponse(
-    (
-      <div
+  return new ImageResponse((<div
         style={{
           background: "#0a0a0a",
           width: "100%",
@@ -52,8 +50,6 @@ export default async function OG() {
         <div style={{ display: "flex", fontSize: 26, color: "#a1a1aa", fontStyle: "italic" }}>
           Self-discipline · Clear thinking · Strength · Strategy · Purpose
         </div>
-      </div>
-    ),
-    { ...size }
-  );
+      </div>),
+    { ...size });
 }

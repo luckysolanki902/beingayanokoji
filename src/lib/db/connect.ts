@@ -6,7 +6,7 @@ import mongoose from "mongoose";
  * Serverless functions are re-entered constantly and a fresh `mongoose.connect`
  * per request would open a new pool every time, exhaust the Atlas connection
  * limit within a few minutes of ordinary traffic, and add a full TLS handshake
- * to every page render. The promise — not the connection — is cached on
+ * to every page render. The promise (not the connection) is cached on
  * `globalThis`, so concurrent requests arriving during a cold start all await
  * the same handshake instead of racing to start their own.
  *

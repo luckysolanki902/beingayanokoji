@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "@/components/theme/ThemeProvider";
+import { paypalColorFor } from "@/lib/themes";
 
 /**
- * PayPal's own buttons. PayPal draws these itself — the branded button is not
- * something an integrator is allowed to fake — so this mounts their SDK into a
+ * PayPal's own buttons. PayPal draws these itself, the branded button is not
+ * something an integrator is allowed to fake, so this mounts their SDK into a
  * container div rather than rendering markup of our own.
  *
  * The amount is never handed to the browser SDK. `createOrder` calls our
@@ -32,14 +34,14 @@ function sdkUrl(clientId: string, currency: string): string {
     intent: "capture",
     components: "buttons",
     // A one-off contribution has no business offering instalment credit.
-    "disable-funding": "credit,paylater",
+    "disable-funding": "credit, paylater",
   });
   return `https://www.paypal.com/sdk/js?${params.toString()}`;
 }
 
 /**
  * Load the SDK once. PayPal keys its global on the currency baked into the
- * script URL, so a currency change would need a fresh script — but the currency
+ * script URL, so a currency change would need a fresh script, but the currency
  * is fixed per reader for the life of a session, so in practice this runs once.
  */
 function loadSdk(clientId: string, currency: string): Promise<boolean> {
@@ -48,9 +50,7 @@ function loadSdk(clientId: string, currency: string): Promise<boolean> {
     if (window.paypal) return resolve(true);
 
     const src = sdkUrl(clientId, currency);
-    const existing = document.querySelector<HTMLScriptElement>(
-      `script[src="${src}"]`
-    );
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${src}"]`);
     if (existing) {
       existing.addEventListener("load", () => resolve(true));
       existing.addEventListener("error", () => resolve(false));
@@ -71,7 +71,7 @@ export function PaypalButtons({
   /**
    * Read the *current* selection at click time. A ref-backed getter rather than
    * a prop, because PayPal renders its buttons into an iframe once and closes
-   * over whatever it was given — a plain prop would freeze the reader on
+   * over whatever it was given, a plain prop would freeze the reader on
    * whichever amount happened to be selected when the panel opened.
    */
   getPayload,
@@ -86,6 +86,9 @@ export function PaypalButtons({
   onError: (message: string) => void;
   onCancel: () => void;
 }) {
+  const { theme } = useTheme();
+  const paypalColor = paypalColorFor(theme);
+
   const container = useRef<HTMLDivElement | null>(null);
   /** Set when we threw on purpose, so onError knows not to talk over us. */
   const suppressError = useRef(false);
@@ -95,7 +98,7 @@ export function PaypalButtons({
   // Keep the callbacks fresh without re-rendering the buttons. Written in an
   // effect rather than during render: PayPal's iframe reads these long after
   // the fact, so what matters is that the ref is current by the time the reader
-  // clicks — and mutating a ref mid-render is not allowed.
+  // clicks, and mutating a ref mid-render is not allowed.
   const handlers = useRef({ getPayload, onSuccess, onError, onCancel });
   useEffect(() => {
     handlers.current = { getPayload, onSuccess, onError, onCancel };
@@ -114,14 +117,27 @@ export function PaypalButtons({
       }
 
       instance = window.paypal.Buttons({
-        style: { layout: "vertical", shape: "rect", label: "paypal", height: 48 },
+        // PayPal draws inside its own iframe, so the only styling available is
+        // the handful of options it exposes. Square corners to match every
+        // other control on the site, and a colour chosen from its palette to
+        // suit the room the reader picked, black in the light themes and white
+        // in the dark ones. Gold is never used; it is the one option that would
+        // look like an advertisement dropped into a lecture.
+        style: {
+          layout: "vertical",
+          shape: "rect",
+          label: "paypal",
+          height: 48,
+          color: paypalColor,
+          tagline: false,
+        },
 
         createOrder: async () => {
           const payload = handlers.current.getPayload();
           if (!payload) {
             // The panel has already told the reader exactly what is wrong (an
             // empty or too-small custom amount). PayPal routes any throw here
-            // into onError, so flag it — replacing "Enter at least $1" with a
+            // into onError, so flag it, replacing "Enter at least $1" with a
             // generic failure would send them hunting for a problem that isn't
             // there.
             suppressError.current = true;
@@ -149,9 +165,7 @@ export function PaypalButtons({
           });
           const body = await res.json().catch(() => null);
           if (!res.ok || !body?.success) {
-            handlers.current.onError(
-              body?.message || "The payment did not go through. Nothing was charged."
-            );
+            handlers.current.onError(body?.message || "The payment did not go through. Nothing was charged.");
             return;
           }
           handlers.current.onSuccess({ name: body.name });
@@ -165,9 +179,7 @@ export function PaypalButtons({
             return;
           }
           console.error("paypal button error:", err);
-          handlers.current.onError(
-            "PayPal could not be reached. Please try again in a moment."
-          );
+          handlers.current.onError("PayPal could not be reached. Please try again in a moment.");
         },
       });
 
@@ -188,25 +200,19 @@ export function PaypalButtons({
         /* the SDK throws if it was never rendered; nothing to undo */
       }
     };
-  }, [clientId, currency]);
+  }, [clientId, currency, paypalColor]);
 
-  return (
-    <div className="mt-6">
-      {!ready && !failed && (
-        <div
+  return (<div className="mt-6">
+      {!ready && !failed && (<div
           className="h-[48px] w-full animate-pulse rounded-sm bg-[color:var(--color-bg-elevated)]"
           aria-label="Loading PayPal"
-        />
-      )}
-      {failed && (
-        <p className="py-3 text-center text-xs text-red-400">
+        />)}
+      {failed && (<p className="py-3 text-center text-xs text-red-400">
           PayPal could not load. A browser extension or network filter may be
           blocking it.
-        </p>
-      )}
+        </p>)}
       {/* PayPal renders into this node. It stays mounted while loading so the
           SDK always has a target to draw into. */}
       <div ref={container} className={failed ? "hidden" : undefined} />
-    </div>
-  );
+    </div>);
 }

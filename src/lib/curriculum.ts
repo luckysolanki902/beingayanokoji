@@ -34,7 +34,7 @@ export const CLASSES: SchoolClass[] = [
     label: "Class D",
     japanese: "Ｄクラス",
     brief:
-      "You start here. Everyone does. Class D is not a punishment — it is an accurate description of what you have demonstrated so far, which is nothing. The lectures below are the only way out.",
+      "You start here. Everyone does. Class D is not a punishment; it is an accurate description of what you have demonstrated so far, which is nothing. The lectures below are the only way out.",
     promotion: "Enrolled.",
     size: 10,
   },
@@ -70,7 +70,7 @@ export const CLASSES: SchoolClass[] = [
     label: "Graduation",
     japanese: "卒業",
     brief:
-      "The final lectures. There is no class above this one and nothing waiting on the other side — which is the point. You were never being trained for the school.",
+      "The final lectures. There is no class above this one and nothing waiting on the other side, which is the point. You were never being trained for the school.",
     promotion: "You have reached graduation.",
     size: 10,
   },
@@ -105,7 +105,7 @@ export interface CurriculumEntry {
   /** Position in reading order, from 0. */
   index: number;
   classId: ClassId;
-  /** Position within the class, from 1 — "Lecture 4 of Class D". */
+  /** Position within the class, from 1, "Lecture 4 of Class D". */
   positionInClass: number;
 }
 
@@ -137,9 +137,7 @@ export function buildCurriculum(lectures: LectureMeta[]): CurriculumClass[] {
 }
 
 /** Flatten to a slug → entry lookup, for the lecture page. */
-export function curriculumIndex(
-  lectures: LectureMeta[]
-): Record<string, CurriculumEntry> {
+export function curriculumIndex(lectures: LectureMeta[]): Record<string, CurriculumEntry> {
   const out: Record<string, CurriculumEntry> = {};
   lectures.forEach((lecture, index) => {
     out[lecture.slug] = {

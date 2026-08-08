@@ -9,7 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   /**
    * Unpublished lectures are still listed. Their pages exist, they are
    * internally linked, and a placeholder that says "being written" is a real
-   * page — but they rank below everything finished, which the priority says.
+   * page, but they rank below everything finished, which the priority says.
    */
   const lectureEntries: MetadataRoute.Sitemap = lectures.map((lec) => ({
     url: absoluteUrl(`/lectures/${lec.slug}`),

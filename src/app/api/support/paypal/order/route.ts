@@ -3,6 +3,8 @@ import { getClientCountry } from "@/lib/request";
 import { priceConfigFor, resolveAmount } from "@/lib/pricing";
 import { createPaypalOrder, paypalConfigured, paypalSupports } from "@/lib/paypal";
 import { recordSupport } from "@/lib/support-log";
+import { getCurrentUser } from "@/lib/auth/session";
+import { recordPurchaseIntent } from "@/lib/economy/grant";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,10 +23,8 @@ const ALLOWED_SOURCES = new Set(["header", "footer", "reader", "lectures", "abou
 export async function POST(request: NextRequest) {
   try {
     if (!paypalConfigured()) {
-      return NextResponse.json(
-        { message: "Support is not available right now." },
-        { status: 503 }
-      );
+      return NextResponse.json({ message: "Support is not available right now." },
+        { status: 503 });
     }
 
     const body = (await request.json().catch(() => null)) as {
@@ -42,10 +42,8 @@ export async function POST(request: NextRequest) {
     try {
       priced = resolveAmount(cfg, { tier: body?.tier, amount: body?.amount });
     } catch {
-      return NextResponse.json(
-        { message: "Please choose an amount first." },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: "Please choose an amount first." },
+        { status: 400 });
     }
 
     const source =
@@ -68,6 +66,18 @@ export async function POST(request: NextRequest) {
       description: "Support Being Ayanokoji",
     });
 
+    // Who to credit, written down now while there is still a session to read.
+    // By the time PayPal's webhook confirms the capture there is no cookie on
+    // the request, and a reader who closes the tab never triggers the browser
+    // path at all; this row is the only thing that connects that money to them.
+    const user = await getCurrentUser();
+    await recordPurchaseIntent({
+      userId: user?.id ?? null,
+      orderId: order.id,
+      subunits: priced.subunits,
+      currency: cfg.currency,
+    });
+
     recordSupport({
       event: "order.created",
       orderId: order.id,
@@ -87,9 +97,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("support/paypal/order error:", error);
-    return NextResponse.json(
-      { message: "Could not start the payment. Please try again." },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Could not start the payment. Please try again." },
+      { status: 500 });
   }
 }

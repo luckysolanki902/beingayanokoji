@@ -16,7 +16,7 @@ const CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
 const CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
 const WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID;
 
-/** Live only when explicitly asked for — an unset env must never bill anyone. */
+/** Live only when explicitly asked for, an unset env must never bill anyone. */
 export function isLive(): boolean {
   return (process.env.PAYPAL_ENV || "sandbox").toLowerCase() === "live";
 }
@@ -52,10 +52,8 @@ export function toPaypalAmount(subunits: number, currency: string): string {
 }
 
 /** PayPal's decimal string → subunits, the unit everything else here uses. */
-export function fromPaypalAmount(
-  value: unknown,
-  currency: unknown
-): number | null {
+export function fromPaypalAmount(value: unknown,
+  currency: unknown): number | null {
   const n = typeof value === "string" ? Number(value) : NaN;
   if (!Number.isFinite(n)) return null;
   const code = typeof currency === "string" ? currency.toUpperCase() : "USD";
@@ -107,10 +105,8 @@ async function accessToken(): Promise<string> {
   return cachedToken.value;
 }
 
-async function api(
-  path: string,
-  init: { method?: string; body?: unknown; requestId?: string } = {}
-): Promise<Record<string, unknown>> {
+async function api(path: string,
+  init: { method?: string; body?: unknown; requestId?: string } = {}): Promise<Record<string, unknown>> {
   const headers: Record<string, string> = {
     Authorization: `Bearer ${await accessToken()}`,
     "Content-Type": "application/json",
@@ -129,9 +125,7 @@ async function api(
   const text = await res.text();
   const parsed = text ? JSON.parse(text) : {};
   if (!res.ok) {
-    throw new Error(
-      `PayPal ${init.method || "GET"} ${path} failed (${res.status}): ${text}`
-    );
+    throw new Error(`PayPal ${init.method || "GET"} ${path} failed (${res.status}): ${text}`);
   }
   return parsed as Record<string, unknown>;
 }
@@ -185,9 +179,7 @@ export async function createPaypalOrder(params: {
 }
 
 /** Capture an approved order. This is the call that actually takes the money. */
-export async function capturePaypalOrder(
-  orderId: string
-): Promise<Record<string, unknown>> {
+export async function capturePaypalOrder(orderId: string): Promise<Record<string, unknown>> {
   return await api(`/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
     method: "POST",
     // The same id on a retry returns the original capture, not a second charge.
@@ -196,10 +188,8 @@ export async function capturePaypalOrder(
   });
 }
 
-/** Read an order back — the recovery path when a capture response was lost. */
-export async function getPaypalOrder(
-  orderId: string
-): Promise<Record<string, unknown>> {
+/** Read an order back, the recovery path when a capture response was lost. */
+export async function getPaypalOrder(orderId: string): Promise<Record<string, unknown>> {
   return await api(`/v2/checkout/orders/${encodeURIComponent(orderId)}`);
 }
 
@@ -214,13 +204,11 @@ export function paypalWebhookConfigured(): boolean {
  *
  * There is no local HMAC to check here: PayPal signs with a rotating
  * certificate, so the only sound verification is to hand the headers plus the
- * parsed event back to PayPal and ask. Returns false on any doubt — an
+ * parsed event back to PayPal and ask. Returns false on any doubt, an
  * unverified event must never be treated as a payment.
  */
-export async function verifyPaypalWebhook(
-  headers: Headers,
-  event: unknown
-): Promise<boolean> {
+export async function verifyPaypalWebhook(headers: Headers,
+  event: unknown): Promise<boolean> {
   if (!WEBHOOK_ID) return false;
   const required = [
     "paypal-auth-algo",
@@ -277,9 +265,7 @@ function str(v: unknown, max = 254): string | null {
 }
 
 /** Dig the completed capture out of an order or capture response, if any. */
-function firstCapture(
-  order: Record<string, unknown>
-): Record<string, unknown> | null {
+function firstCapture(order: Record<string, unknown>): Record<string, unknown> | null {
   const units = order.purchase_units;
   if (!Array.isArray(units)) return null;
   for (const unit of units) {
@@ -295,9 +281,7 @@ function firstCapture(
 }
 
 /** Flatten a PayPal order (or capture response) into the shape above. */
-export function paypalFacts(
-  order: Record<string, unknown> | null | undefined
-): PaymentFacts {
+export function paypalFacts(order: Record<string, unknown> | null | undefined): PaymentFacts {
   const facts: PaymentFacts = {
     paymentId: null,
     email: null,
@@ -335,12 +319,10 @@ export function paypalFacts(
       unknown
     >;
     const fee = (breakdown.paypal_fee ?? {}) as Record<string, unknown>;
-    facts.fee = fromPaypalAmount(
-      fee.value,
-      fee.currency_code ?? amount.currency_code
-    );
+    facts.fee = fromPaypalAmount(fee.value,
+      fee.currency_code ?? amount.currency_code);
   } else {
-    // Not captured yet — the order still carries the intended amount.
+    // Not captured yet, the order still carries the intended amount.
     const units = Array.isArray(order.purchase_units) ? order.purchase_units : [];
     const amount = ((units[0] as Record<string, unknown>)?.amount ?? {}) as Record<
       string,

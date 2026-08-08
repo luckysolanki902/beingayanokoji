@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllLectures } from "@/lib/lectures";
+import Image from "next/image";
 import { FadeIn, AnimatedText } from "@/components/AnimatedText";
+import { SITE_IMAGES } from "@/lib/lecture-images";
 import { ClassRoster } from "@/components/progress/ClassRoster";
+import { getStudentRecord } from "@/lib/progress/state";
 import { buildCurriculum } from "@/lib/curriculum";
 import {
   SITE_NAME,
@@ -29,12 +32,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function LecturesIndexPage() {
+export default async function LecturesIndexPage() {
   const lectures = getAllLectures();
   const published = lectures.filter((l) => l.published);
+  const record = await getStudentRecord();
 
-  const jsonLd = jsonLdGraph(
-    {
+  const jsonLd = jsonLdGraph({
       "@type": "CollectionPage",
       "@id": absoluteUrl("/lectures#page"),
       url: absoluteUrl("/lectures"),
@@ -44,7 +47,7 @@ export default function LecturesIndexPage() {
       publisher: { "@id": absoluteUrl("/#organization") },
     },
     publisherNode(),
-    // The curriculum is a Course in the schema.org sense — ordered parts, a
+    // The curriculum is a Course in the schema.org sense, ordered parts, a
     // provider, an assessment between each. Worth declaring: course results
     // are a distinct surface in search.
     courseNode({ classCount: CLASS_ORDER.length, lectureCount: lectures.length }),
@@ -62,11 +65,9 @@ export default function LecturesIndexPage() {
         url: absoluteUrl(`/lectures/${lec.slug}`),
         name: lec.title,
       })),
-    }
-  );
+    });
 
-  return (
-    <div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
+  return (<div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -86,7 +87,7 @@ export default function LecturesIndexPage() {
           <p className="mt-8 max-w-2xl text-[color:var(--color-muted)] leading-relaxed">
             Each entry below is a self-contained essay of four to six thousand
             words. Start from the first lecture. The pillar tag tells you which
-            dimension the lecture is sharpening — or{" "}
+            dimension the lecture is sharpening, or{" "}
             <Link
               href="/topics"
               className="text-[color:var(--color-fg)] underline decoration-[color:var(--color-rule)] underline-offset-4 hover:decoration-[color:var(--color-accent)] transition-colors"
@@ -98,8 +99,22 @@ export default function LecturesIndexPage() {
           </p>
         </FadeIn>
 
-        <ClassRoster curriculum={buildCurriculum(lectures)} />
+        {/* The empty classroom: the index is a roster, and this is the room
+            it belongs to. */}
+        <FadeIn>
+          <figure className="relative mt-12 aspect-[21/9] w-full overflow-hidden border border-[color:var(--rule)] bg-[color:var(--bg-elevated)]">
+            <Image
+              src={SITE_IMAGES.classroom.src}
+              alt={SITE_IMAGES.classroom.alt}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 896px"
+              className="object-cover"
+            />
+          </figure>
+        </FadeIn>
+
+        <ClassRoster curriculum={buildCurriculum(lectures)} record={record} />
       </div>
-    </div>
-  );
+    </div>);
 }

@@ -10,25 +10,23 @@
 /**
  * The canonical origin. `NEXT_PUBLIC_SITE_URL` overrides it so preview
  * deployments can point at themselves, but production resolves to the custom
- * domain — never the .vercel.app alias, which stays reachable but must not be
+ * domain, never the .vercel.app alias, which stays reachable but must not be
  * the address search engines index.
  */
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL || "https://beingayanokoji.dailicle.com"
-).replace(/\/$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://beingayanokoji.dailicle.com").replace(/\/$/, "");
 
 export const SITE_NAME = "Being Ayanokoji";
 
 export const SITE_TAGLINE = "Calm in tone. Heavy in substance.";
 
 /**
- * The default description. Written for a human first — it is the snippet under
- * the result, and a snippet that reads like a keyword list gets skipped — but it
+ * The default description. Written for a human first; it is the snippet under
+ * the result, and a snippet that reads like a keyword list gets skipped, but it
  * carries the terms the site should actually be found for: self-discipline,
  * focus, habits, clear thinking.
  */
 export const SITE_DESCRIPTION =
-  "Long-form lectures on self-discipline, clear thinking, focus, and self-improvement that respects your intelligence. Deeply researched essays on habits, emotional regulation, strategy, strength, and purpose — no platitudes, no paywall, no newsletter.";
+  "Long-form lectures on self-discipline, clear thinking, focus, and self-improvement that respects your intelligence. Deeply researched essays on habits, emotional regulation, strategy, strength, and purpose, no platitudes, no paywall, no newsletter.";
 
 export const SITE_SHORT_DESCRIPTION =
   "Long-form lectures on self-discipline, clear thinking, and deliberate living.";
@@ -101,7 +99,7 @@ export function breadcrumbNode(trail: { name: string; path: string }[]) {
   };
 }
 
-/** Wrap nodes in a single @graph — one script tag per page, not five. */
+/** Wrap nodes in a single @graph, one script tag per page, not five. */
 export function jsonLdGraph(...nodes: object[]) {
   return { "@context": "https://schema.org", "@graph": nodes };
 }
@@ -110,7 +108,7 @@ export function jsonLdGraph(...nodes: object[]) {
  * The whole site as a Course.
  *
  * This became true rather than aspirational the moment the lectures were
- * arranged into classes with examinations between them — which is exactly the
+ * arranged into classes with examinations between them, which is exactly the
  * shape `Course` describes. Search engines treat course markup as a distinct
  * result type, so a curriculum that genuinely is one should say so.
  */
@@ -121,7 +119,7 @@ export function courseNode(params: {
   return {
     "@type": "Course",
     "@id": absoluteUrl("/lectures#course"),
-    name: `${SITE_NAME} — the curriculum`,
+    name: `${SITE_NAME}, the curriculum`,
     description: `A ${params.lectureCount}-lecture curriculum on self-discipline, clear thinking, emotional regulation, strength, strategy and purpose, arranged into ${params.classCount} classes. Each lecture ends in an examination that opens the next.`,
     url: absoluteUrl("/lectures"),
     provider: { "@id": absoluteUrl("/#organization") },

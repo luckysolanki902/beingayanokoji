@@ -12,13 +12,13 @@ export function generateStaticParams() {
 
 /**
  * Cut at the last word boundary before the limit, and drop any trailing
- * punctuation the cut left dangling — "one of the few ," reads as a bug.
+ * punctuation the cut left dangling, "one of the few," reads as a bug.
  */
 function truncateWords(text: string, limit: number): string {
   if (text.length <= limit) return text;
   const cut = text.slice(0, limit);
   const lastSpace = cut.lastIndexOf(" ");
-  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:—-]+$/, "") + "…";
+  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).replace(/[\s, ; :, -]+$/, "") + "…";
 }
 
 /**
@@ -43,9 +43,7 @@ export default async function OG({
   const titleSize = title.length > 46 ? 62 : title.length > 30 ? 74 : 86;
   const shownClaim = truncateWords(claim, 165);
 
-  return new ImageResponse(
-    (
-      <div
+  return new ImageResponse((<div
         style={{
           background: "#0a0a0a",
           width: "100%",
@@ -85,8 +83,7 @@ export default async function OG({
           >
             {title}
           </div>
-          {shownClaim && (
-            <div
+          {shownClaim && (<div
               style={{
                 display: "flex",
                 fontSize: 27,
@@ -98,15 +95,12 @@ export default async function OG({
               }}
             >
               {shownClaim}
-            </div>
-          )}
+            </div>)}
         </div>
 
         <div style={{ display: "flex", fontSize: 22, color: "#6a6a6a" }}>
           {lec ? `${lec.readingTimeMin} min · ${lec.wordCount.toLocaleString()} words` : ""}
         </div>
-      </div>
-    ),
-    { ...size }
-  );
+      </div>),
+    { ...size });
 }

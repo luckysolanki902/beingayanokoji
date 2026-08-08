@@ -3,10 +3,10 @@ import { Shippori_Mincho, Zen_Kaku_Gothic_New, Klee_One } from "next/font/google
 import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { ProgressProvider } from "@/components/progress/ProgressProvider";
+import { StudentProvider } from "@/components/progress/StudentProvider";
 import { PromotionOverlay } from "@/components/progress/PromotionOverlay";
 import { NO_FLASH_SCRIPT } from "@/lib/themes";
-import { getAllLectures } from "@/lib/lectures";
+import { getStudentRecord } from "@/lib/progress/state";
 import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
@@ -26,10 +26,10 @@ import "./globals.css";
  * Only the latin subset is requested from each. These faces carry full
  * Japanese coverage, which runs to megabytes; the handful of kanji in the
  * chrome are rendered with the reader's own system mincho instead (see
- * `.font-jp`), so nothing here needs the japanese subset.
+ * `.font-jp`) so nothing here needs the japanese subset.
  */
 
-/** 明朝 — the display face. Brush-derived terminals, strong vertical stress. */
+/** 明朝, the display face. Brush-derived terminals, strong vertical stress. */
 const mincho = Shippori_Mincho({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -37,7 +37,7 @@ const mincho = Shippori_Mincho({
   display: "swap",
 });
 
-/** ゴシック — body and UI. Even, unfussy, holds up at small sizes. */
+/** ゴシック, body and UI. Even, unfussy, holds up at small sizes. */
 const gothic = Zen_Kaku_Gothic_New({
   subsets: ["latin"],
   weight: ["300", "400", "500", "700"],
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default:
-      "Being Ayanokoji — Long-form lectures on self-discipline and clear thinking",
+      "Being Ayanokoji, Long-form lectures on self-discipline and clear thinking",
     template: `%s · ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -76,13 +76,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: SITE_URL,
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    title: `${SITE_NAME}, ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     siteName: SITE_NAME,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    title: `${SITE_NAME}, ${SITE_TAGLINE}`,
     description: SITE_SHORT_DESCRIPTION,
   },
   robots: {
@@ -100,7 +100,7 @@ export const metadata: Metadata = {
   // and figures; Safari linkifying them is noise.
   formatDetection: { telephone: false, address: false, email: false },
   // Search Console. The meta tag verifies a URL-prefix property on any domain
-  // the site is served from — including the .vercel.app alias, whose DNS we do
+  // the site is served from, including the .vercel.app alias, whose DNS we do
   // not control and therefore cannot add a TXT record to.
   verification: {
     google: "2lupVcjQkSBkgZYxGTlq838YyAziVlX-cfHHGLdtV64",
@@ -109,7 +109,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // The default room — 教室, afternoon light on manuscript paper.
+  // The default room, 教室, afternoon light on manuscript paper.
   themeColor: "#f2efe4",
   colorScheme: "light dark",
   width: "device-width",
@@ -120,8 +120,7 @@ export const viewport: Viewport = {
  * The site-level entities, declared once here so every page inherits them by
  * `@id` reference instead of redefining a publisher of its own.
  */
-const siteJsonLd = jsonLdGraph(
-  {
+const siteJsonLd = jsonLdGraph({
     "@type": "WebSite",
     "@id": absoluteUrl("/#website"),
     url: SITE_URL,
@@ -130,18 +129,33 @@ const siteJsonLd = jsonLdGraph(
     inLanguage: "en",
     publisher: { "@id": absoluteUrl("/#organization") },
   },
-  publisherNode()
-);
+  publisherNode());
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const orderedSlugs = getAllLectures().map((l) => l.slug);
+  // Reading the session here makes every page render per-request, which is the
+  // trade the class system asks for: a lecture gate worth a hundred points
+  // cannot be decided after hydration, and the header cannot show a balance it
+  // learns about a second late. The lectures themselves are still built from
+  // the markdown on disk, so this costs a session lookup, not a content one.
+  const record = await getStudentRecord();
 
-  return (
-    <html
+  const student = {
+    signedIn: record.signedIn,
+    name: record.user?.name ?? null,
+    email: record.user?.email ?? null,
+    points: record.points,
+    currentClass: record.currentClass,
+    passedCount: record.passedCount,
+    unlockedCount: record.unlockedCount,
+    totalCount: record.totalCount,
+    promotionsSeen: record.user?.promotionsSeen ?? [],
+  };
+
+  return (<html
       lang="en"
       className={`${mincho.variable} ${gothic.variable} ${klee.variable}`}
       suppressHydrationWarning
@@ -158,7 +172,7 @@ export default function RootLayout({
             warming the connection early keeps that first paint from stalling. */}
         {/* Declared here rather than in `metadata.alternates`: every page sets
             its own `alternates` for the canonical, and Next replaces the whole
-            field rather than merging it — which silently dropped the feed. */}
+            field rather than merging it, which silently dropped the feed. */}
         <link
           rel="alternate"
           type="application/rss+xml"
@@ -170,18 +184,17 @@ export default function RootLayout({
       </head>
       <body className="grain">
         <ThemeProvider>
-          <ProgressProvider>
+          <StudentProvider student={student}>
             <SiteHeader />
             <main className="min-h-screen">{children}</main>
             <SiteFooter />
-            {/* Mounted site-wide so the promotion fires wherever the reader
-                happened to finish the class — usually an exam, but a restored
-                record on any page counts too. */}
-            <PromotionOverlay orderedSlugs={orderedSlugs} />
-          </ProgressProvider>
+            {/* Mounted site-wide so the promotion fires wherever the student
+                happened to finish the class, usually an exam, but signing in
+                on another device counts too. */}
+            <PromotionOverlay />
+          </StudentProvider>
         </ThemeProvider>
         <Analytics />
       </body>
-    </html>
-  );
+    </html>);
 }

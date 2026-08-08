@@ -6,7 +6,7 @@ export const dynamic = "force-static";
 /**
  * RSS, because the people most likely to read a five-thousand-word essay are
  * disproportionately the people who still run a reader. It also gives the site
- * a machine-readable surface that is not the sitemap — aggregators, Google
+ * a machine-readable surface that is not the sitemap, aggregators, Google
  * Discover and a number of indexing services consume feeds directly.
  *
  * Only published lectures appear. A feed advertising essays that do not exist

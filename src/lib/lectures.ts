@@ -20,7 +20,7 @@ export type LectureMeta = {
   published: boolean;
   /**
    * ISO date the lecture was first published, from `date:` in the front matter.
-   * Null when the front matter does not say — search engines would rather have
+   * Null when the front matter does not say, search engines would rather have
    * no date than a date invented from a file timestamp, which on a fresh CI
    * checkout is just the build time.
    */
@@ -53,7 +53,7 @@ export function getLectureBySlug(slug: string): Lecture | null {
     slug,
     title: data.title ?? slug,
     order: data.order ?? 0,
-    pillar: data.pillar ?? "—",
+    pillar: data.pillar ?? ", ",
     secondaryPillars: data.secondary_pillars ?? [],
     difficulty: data.difficulty,
     keyClaim: data.key_claim ?? "",
@@ -69,7 +69,7 @@ export function getLectureBySlug(slug: string): Lecture | null {
 }
 
 /**
- * Front matter dates arrive as whatever YAML made of them — a Date when the
+ * Front matter dates arrive as whatever YAML made of them, a Date when the
  * value was unquoted, a string when it was quoted. Anything unparseable becomes
  * null rather than an "Invalid Date" that would reach a schema.org field.
  */
@@ -105,9 +105,7 @@ export function getAllLectures(): LectureMeta[] {
  * two entries on it is not worth having.
  */
 export function getLecturesByPillar(pillar: string): LectureMeta[] {
-  return getAllLectures().filter(
-    (l) => l.pillar === pillar || (l.secondaryPillars ?? []).includes(pillar)
-  );
+  return getAllLectures().filter((l) => l.pillar === pillar || (l.secondaryPillars ?? []).includes(pillar));
 }
 
 function deriveExcerpt(content: string): string {
@@ -115,13 +113,11 @@ function deriveExcerpt(content: string): string {
     .split("\n\n")
     .find((block) => {
       const trimmed = block.trim();
-      return (
-        trimmed.length > 50 &&
+      return (trimmed.length > 50 &&
         !trimmed.startsWith("#") &&
         !trimmed.startsWith(">") &&
         !trimmed.startsWith("-") &&
-        !trimmed.startsWith("```")
-      );
+        !trimmed.startsWith("```"));
     });
   if (!firstPara) return "";
   const cleaned = firstPara.replace(/\s+/g, " ").trim();

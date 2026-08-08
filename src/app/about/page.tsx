@@ -9,7 +9,7 @@ import {
 } from "@/lib/site";
 
 const DESCRIPTION =
-  "Why this site exists, who it is for, and what it refuses to be — a self-improvement site with no motivational filler, no paywall and no newsletter. The contract between the writer and the reader.";
+  "Why this site exists, who it is for, and what it refuses to be, a self-improvement site with no motivational filler, no paywall and no newsletter. The contract between the writer and the reader.";
 
 export const metadata: Metadata = {
   title: "Philosophy",
@@ -23,8 +23,7 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLd = jsonLdGraph(
-  {
+const jsonLd = jsonLdGraph({
     "@type": "AboutPage",
     "@id": absoluteUrl("/about#page"),
     url: absoluteUrl("/about"),
@@ -38,12 +37,10 @@ const jsonLd = jsonLdGraph(
   breadcrumbNode([
     { name: "Home", path: "/" },
     { name: "Philosophy", path: "/about" },
-  ])
-);
+  ]));
 
 export default function AboutPage() {
-  return (
-    <div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
+  return (<div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -66,7 +63,7 @@ export default function AboutPage() {
           <FadeIn>
             <p>
               This site exists for a specific reader. They are intelligent but
-              underdeveloped — capacity exceeds output. They have read a hundred
+              underdeveloped, capacity exceeds output. They have read a hundred
               self-improvement essays and converted almost none into change. They are
               suspicious of motivational fluff and close the tab the moment they smell
               it. They want to be respected, capable, and free.
@@ -97,10 +94,10 @@ export default function AboutPage() {
             <h2>The four dimensions</h2>
             <p>
               Every lecture moves the reader along at least one of four axes:
-              <em> cognitive</em> — clearer thinking under pressure;
-              <em> psychological</em> — regulation through granularity rather than
-              suppression; <em>physical</em> — strength, conditioning, longevity; and
-              <em> strategic</em> — leverage, influence, and life design. The four
+              <em> cognitive</em>, clearer thinking under pressure;
+              <em> psychological</em>, regulation through granularity rather than
+              suppression; <em>physical</em>, strength, conditioning, longevity; and
+              <em> strategic</em>, leverage, influence, and life design. The four
               compound. None is separable.
             </p>
           </FadeIn>
@@ -133,6 +130,5 @@ export default function AboutPage() {
           </FadeIn>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 }

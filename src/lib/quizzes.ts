@@ -3,7 +3,7 @@
  *
  * These are comprehension questions about the *argument*, not recall questions
  * about the text. Every wrong option is a position a reasonable person actually
- * holds — usually the popular version of the idea that the lecture spent four
+ * holds, usually the popular version of the idea that the lecture spent four
  * thousand words dismantling. A reader who skimmed will pick one of those, which
  * is the entire mechanism: you cannot pass by having had the page open.
  *
@@ -26,7 +26,7 @@ export interface Quiz {
   questions: QuizQuestion[];
 }
 
-/** How many must be right to pass. Two of three — one slip is allowed. */
+/** How many must be right to pass. Two of three, one slip is allowed. */
 export const PASS_THRESHOLD = 2;
 
 const QUIZZES: Record<string, Quiz> = {
@@ -44,14 +44,14 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 2,
         explanation:
-          "The point is not that conditioning excuses you, nor that it can be erased. It is that the inputs going in from now on are the one part of the process you can put your hands on — so that is where deliberate action starts.",
+          "The point is not that conditioning excuses you, nor that it can be erased. It is that the inputs going in from now on are the one part of the process you can put your hands on, so that is where deliberate action starts.",
       },
       {
         id: "wr2",
         prompt: "In what sense is the white room 'a choice'?",
         options: [
           "Anyone can construct a controlled environment if they are disciplined enough",
-          "Everyone already lives in one — an environment shaping them — and the only question is whether they chose it",
+          "Everyone already lives in one (an environment shaping them) and the only question is whether they chose it",
           "It is a thought experiment with no bearing on ordinary life",
           "Choosing isolation is the fastest route to self-development",
         ],
@@ -66,7 +66,7 @@ const QUIZZES: Record<string, Quiz> = {
         options: [
           "Motivation is a myth and only discipline exists",
           "It waits on an internal state that is itself an output of the environment they have not changed",
-          "Nothing — motivation genuinely does precede change",
+          "Nothing, motivation genuinely does precede change",
           "They should set more ambitious goals instead",
         ],
         answer: 1,
@@ -102,7 +102,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 1,
         explanation:
-          "A suppressed reaction has already happened — you are simply paying to conceal it. Widening the gap intervenes earlier, before the response is fixed.",
+          "A suppressed reaction has already happened; you are simply paying to conceal it. Widening the gap intervenes earlier, before the response is fixed.",
       },
       {
         id: "sp3",
@@ -116,7 +116,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 0,
         explanation:
-          "Understanding the gap does not widen it. It widens under load — which means the provocations you would rather avoid are the training.",
+          "Understanding the gap does not widen it. It widens under load, which means the provocations you would rather avoid are the training.",
       },
     ],
   },
@@ -134,7 +134,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 1,
         explanation:
-          "The unreadable man is not the man who feels nothing. He feels it and declines to transmit it — which is a decision, not a deficit.",
+          "The unreadable man is not the man who feels nothing. He feels it and declines to transmit it, which is a decision, not a deficit.",
       },
       {
         id: "ur2",
@@ -179,7 +179,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 1,
         explanation:
-          "A moral framing prescribes guilt. An environmental one prescribes changes you can actually make — to what is within reach, what is frictionless, what interrupts you.",
+          "A moral framing prescribes guilt. An environmental one prescribes changes you can actually make, to what is within reach, what is frictionless, what interrupts you.",
       },
       {
         id: "qr2",
@@ -201,7 +201,7 @@ const QUIZZES: Record<string, Quiz> = {
           "Summaries are usually inaccurate",
           "They deliver conclusions while skipping the sustained attention that was the point",
           "They are too short to be worth the time",
-          "Nothing — summaries are an efficient substitute",
+          "Nothing, summaries are an efficient substitute",
         ],
         answer: 1,
         explanation:
@@ -280,7 +280,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 2,
         explanation:
-          "The signal and the command arrive together. Keeping the first and refusing the second is the whole skill — and it is not the same as bottling it up.",
+          "The signal and the command arrive together. Keeping the first and refusing the second is the whole skill, and it is not the same as bottling it up.",
       },
       {
         id: "ad3",
@@ -294,7 +294,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 1,
         explanation:
-          "If anger is information, its total absence is not mastery — it is a sensor that has stopped reporting. The aim is reading it well, not silencing it.",
+          "If anger is information, its total absence is not mastery; it is a sensor that has stopped reporting. The aim is reading it well, not silencing it.",
       },
     ],
   },
@@ -306,7 +306,7 @@ const QUIZZES: Record<string, Quiz> = {
         prompt: "Why is sleep described as 'the floor' rather than one habit among many?",
         options: [
           "Because it is the easiest habit to fix",
-          "Because nearly every other capacity — judgement, mood, discipline, physical progress — degrades downstream of it",
+          "Because nearly every other capacity (judgement, mood, discipline, physical progress) degrades downstream of it",
           "Because it takes the most hours",
           "Because it is the habit people most enjoy",
         ],
@@ -325,7 +325,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 0,
         explanation:
-          "You can see the hours you bought. You cannot see the judgement you sold to buy them — which is why the trade keeps looking good from the inside.",
+          "You can see the hours you bought. You cannot see the judgement you sold to buy them, which is why the trade keeps looking good from the inside.",
       },
       {
         id: "sf3",
@@ -356,7 +356,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 1,
         explanation:
-          "Not a container but a source. That is why training is not a lesser, separate pursuit — it is one of the more direct levers available on focus and self-command.",
+          "Not a container but a source. That is why training is not a lesser, separate pursuit; it is one of the more direct levers available on focus and self-command.",
       },
       {
         id: "bt2",
@@ -395,7 +395,7 @@ const QUIZZES: Record<string, Quiz> = {
         options: [
           "Learning to win physical confrontations",
           "Physical conditioning that happens to be interesting",
-          "Composure — staying deliberate while the body is genuinely under threat",
+          "Composure, staying deliberate while the body is genuinely under threat",
           "Deterrence through visible capability",
         ],
         answer: 2,
@@ -445,7 +445,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 1,
         explanation:
-          "Force is linear and has to be spent again tomorrow. Leverage keeps paying — which is why the same effort in different positions produces wildly different outcomes.",
+          "Force is linear and has to be spent again tomorrow. Leverage keeps paying, which is why the same effort in different positions produces wildly different outcomes.",
       },
       {
         id: "lg2",
@@ -459,7 +459,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 0,
         explanation:
-          "If the environment reliably pulls people into short horizons, then long horizons are not just virtuous — they are uncrowded.",
+          "If the environment reliably pulls people into short horizons, then long horizons are not just virtuous; they are uncrowded.",
       },
       {
         id: "lg3",
@@ -472,7 +472,7 @@ const QUIZZES: Record<string, Quiz> = {
         ],
         answer: 1,
         explanation:
-          "Applause is paid out quickly. If you need it, you are structurally obliged to chase things that produce it quickly — which rules out most of what compounds.",
+          "Applause is paid out quickly. If you need it, you are structurally obliged to chase things that produce it quickly, which rules out most of what compounds.",
       },
     ],
   },
@@ -484,4 +484,30 @@ export function getQuiz(slug: string): Quiz | null {
 
 export function hasQuiz(slug: string): boolean {
   return slug in QUIZZES;
+}
+
+/**
+ * A question with the answer taken out.
+ *
+ * This is the only form that reaches the browser. It matters now in a way it
+ * did not before: a correct first answer is worth points, and an answer key
+ * sitting in the client bundle would mean the examinations paid out to anyone
+ * willing to open devtools instead of read. The correct option and its
+ * explanation come back from the server action, one question at a time, after
+ * an answer has been committed.
+ */
+export interface PublicQuestion {
+  id: string;
+  prompt: string;
+  options: string[];
+}
+
+export interface PublicQuiz {
+  questions: PublicQuestion[];
+}
+
+export function publicQuiz(quiz: Quiz): PublicQuiz {
+  return {
+    questions: quiz.questions.map(({ id, prompt, options }) => ({ id, prompt, options })),
+  };
 }

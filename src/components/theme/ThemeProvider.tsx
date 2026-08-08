@@ -42,7 +42,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   // Read back what the inline script already applied rather than reading
-  // localStorage again — the DOM is the thing that is actually true, and
+  // localStorage again, the DOM is the thing that is actually true, and
   // trusting it keeps the two paths from disagreeing.
   useEffect(() => {
     const applied = document.documentElement.dataset.theme;
@@ -63,11 +63,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme, ready }}>
+  return (<ThemeContext.Provider value={{ theme, setTheme, ready }}>
       {children}
-    </ThemeContext.Provider>
-  );
+    </ThemeContext.Provider>);
 }
 
 export function useTheme(): ThemeContextValue {
