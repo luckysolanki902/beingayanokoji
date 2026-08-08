@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getLecturePillars } from "@/lib/pillars";
 
 /**
@@ -26,7 +27,14 @@ export function PillarLegend({
               <span className="font-serif text-2xl text-[color:var(--color-faint)]">
                 {p.num}
               </span>
-              <span className="text-sm uppercase tracking-wider">{p.name}</span>
+              {/* Every lecture footer links onward to its subject hubs, which
+                  is most of the site's internal linking. */}
+              <Link
+                href={`/topics/${p.slug}`}
+                className="text-sm uppercase tracking-wider hover:text-[color:var(--color-accent)] transition-colors"
+              >
+                {p.name}
+              </Link>
             </dt>
             <dd className="font-serif italic text-base text-[color:var(--color-muted)] leading-snug">
               {p.note}

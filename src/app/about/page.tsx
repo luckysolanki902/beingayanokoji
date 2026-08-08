@@ -1,16 +1,53 @@
 import type { Metadata } from "next";
 import { AnimatedText, FadeIn } from "@/components/AnimatedText";
+import {
+  SITE_NAME,
+  absoluteUrl,
+  breadcrumbNode,
+  jsonLdGraph,
+  publisherNode,
+} from "@/lib/site";
+
+const DESCRIPTION =
+  "Why this site exists, who it is for, and what it refuses to be — a self-improvement site with no motivational filler, no paywall and no newsletter. The contract between the writer and the reader.";
 
 export const metadata: Metadata = {
   title: "Philosophy",
-  description:
-    "Why this site exists, who it is for, and what it refuses to be. The contract between the writer and the reader.",
+  description: DESCRIPTION,
   alternates: { canonical: "/about" },
+  openGraph: {
+    type: "website",
+    title: `Philosophy · ${SITE_NAME}`,
+    description: DESCRIPTION,
+    url: absoluteUrl("/about"),
+  },
 };
+
+const jsonLd = jsonLdGraph(
+  {
+    "@type": "AboutPage",
+    "@id": absoluteUrl("/about#page"),
+    url: absoluteUrl("/about"),
+    name: `Philosophy · ${SITE_NAME}`,
+    description: DESCRIPTION,
+    isPartOf: { "@id": absoluteUrl("/#website") },
+    publisher: { "@id": absoluteUrl("/#organization") },
+    mainEntity: { "@id": absoluteUrl("/#organization") },
+  },
+  publisherNode(),
+  breadcrumbNode([
+    { name: "Home", path: "/" },
+    { name: "Philosophy", path: "/about" },
+  ])
+);
 
 export default function AboutPage() {
   return (
     <div className="pt-32 pb-24 px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-6">

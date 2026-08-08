@@ -1,33 +1,35 @@
 import type { MetadataRoute } from "next";
 import { getAllLectures } from "@/lib/lectures";
-
-const SITE_URL = "https://beingayanokoji.vercel.app";
+import { PILLARS } from "@/lib/pillars";
+import { absoluteUrl } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const lectures = getAllLectures();
 
+  /**
+   * Unpublished lectures are still listed. Their pages exist, they are
+   * internally linked, and a placeholder that says "being written" is a real
+   * page — but they rank below everything finished, which the priority says.
+   */
   const lectureEntries: MetadataRoute.Sitemap = lectures.map((lec) => ({
-    url: `${SITE_URL}/lectures/${lec.slug}`,
-    changeFrequency: "yearly",
-    priority: 0.8,
+    url: absoluteUrl(`/lectures/${lec.slug}`),
+    ...(lec.updatedAt ? { lastModified: new Date(lec.updatedAt) } : {}),
+    changeFrequency: lec.published ? ("yearly" as const) : ("monthly" as const),
+    priority: lec.published ? 0.8 : 0.3,
+  }));
+
+  const topicEntries: MetadataRoute.Sitemap = PILLARS.map((p) => ({
+    url: absoluteUrl(`/topics/${p.slug}`),
+    changeFrequency: "weekly",
+    priority: 0.85,
   }));
 
   return [
-    {
-      url: SITE_URL,
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: `${SITE_URL}/lectures`,
-      changeFrequency: "weekly",
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/about`,
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
+    { url: absoluteUrl("/"), changeFrequency: "weekly", priority: 1 },
+    { url: absoluteUrl("/lectures"), changeFrequency: "weekly", priority: 0.9 },
+    { url: absoluteUrl("/topics"), changeFrequency: "weekly", priority: 0.9 },
+    { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.6 },
+    ...topicEntries,
     ...lectureEntries,
   ];
 }

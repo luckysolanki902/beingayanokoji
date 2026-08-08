@@ -2,19 +2,67 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAllLectures } from "@/lib/lectures";
 import { FadeIn, AnimatedText } from "@/components/AnimatedText";
+import {
+  SITE_NAME,
+  absoluteUrl,
+  breadcrumbNode,
+  jsonLdGraph,
+  publisherNode,
+} from "@/lib/site";
+
+const DESCRIPTION =
+  "The full index of long-form lectures on self-discipline, clear thinking, emotional regulation, focus, strength, strategy and purpose. Self-contained essays, arranged in recommended reading order, free to read.";
 
 export const metadata: Metadata = {
-  title: "Lectures",
-  description:
-    "The full index of long-form lectures — observation, restraint, desire, the body, the long game. Arranged in recommended reading order.",
+  title: "All lectures",
+  description: DESCRIPTION,
   alternates: { canonical: "/lectures" },
+  openGraph: {
+    type: "website",
+    title: `All lectures · ${SITE_NAME}`,
+    description: DESCRIPTION,
+    url: absoluteUrl("/lectures"),
+  },
 };
 
 export default function LecturesIndexPage() {
   const lectures = getAllLectures();
+  const published = lectures.filter((l) => l.published);
+
+  const jsonLd = jsonLdGraph(
+    {
+      "@type": "CollectionPage",
+      "@id": absoluteUrl("/lectures#page"),
+      url: absoluteUrl("/lectures"),
+      name: `All lectures · ${SITE_NAME}`,
+      description: DESCRIPTION,
+      isPartOf: { "@id": absoluteUrl("/#website") },
+      publisher: { "@id": absoluteUrl("/#organization") },
+    },
+    publisherNode(),
+    breadcrumbNode([
+      { name: "Home", path: "/" },
+      { name: "Lectures", path: "/lectures" },
+    ]),
+    {
+      "@type": "ItemList",
+      name: "Lectures in reading order",
+      numberOfItems: published.length,
+      itemListElement: published.map((lec, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: absoluteUrl(`/lectures/${lec.slug}`),
+        name: lec.title,
+      })),
+    }
+  );
 
   return (
     <div className="pt-32 pb-24 px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="mx-auto max-w-4xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-6">
@@ -28,8 +76,17 @@ export default function LecturesIndexPage() {
         />
         <FadeIn delay={0.5}>
           <p className="mt-8 max-w-2xl text-[color:var(--color-muted)] leading-relaxed">
-            Each entry below is a self-contained essay. Start from the first lecture. The pillar tag tells you which dimension the lecture is
-            sharpening. New lectures are added as they are finished.
+            Each entry below is a self-contained essay of four to six thousand
+            words. Start from the first lecture. The pillar tag tells you which
+            dimension the lecture is sharpening — or{" "}
+            <Link
+              href="/topics"
+              className="text-[color:var(--color-fg)] underline decoration-[color:var(--color-rule)] underline-offset-4 hover:decoration-[color:var(--color-accent)] transition-colors"
+            >
+              browse by subject
+            </Link>{" "}
+            if you would rather start from a problem than from the beginning.
+            New lectures are added as they are finished.
           </p>
         </FadeIn>
 

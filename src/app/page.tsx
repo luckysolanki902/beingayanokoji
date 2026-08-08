@@ -1,18 +1,95 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AnimatedText, FadeIn } from "@/components/AnimatedText";
 import { BlinkingCursor } from "@/components/Cursor";
 import { getAllLectures } from "@/lib/lectures";
 import { PILLARS } from "@/lib/pillars";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  absoluteUrl,
+  jsonLdGraph,
+  publisherNode,
+} from "@/lib/site";
+
+export const metadata: Metadata = {
+  title:
+    "Being Ayanokoji — Long-form lectures on self-discipline and clear thinking",
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+};
+
+/**
+ * Questions a reader actually arrives with, answered plainly.
+ *
+ * These are here because they are worth answering, not because of the markup —
+ * but the markup follows, and a question-shaped search is the one place a small
+ * site can still out-rank a large one.
+ */
+const FAQ: { q: string; a: string }[] = [
+  {
+    q: "What is this site?",
+    a: "A collection of long-form lectures on self-discipline, clear thinking, emotional regulation, strength, strategy and purpose. Each one is a self-contained essay of four to six thousand words, researched properly and written for someone who has already read the popular version and found it thin.",
+  },
+  {
+    q: "Is it free?",
+    a: "Entirely. There is no paywall, no account, no newsletter and no upsell. Readers can contribute through PayPal if a lecture was worth something to them, and nothing changes if they don't.",
+  },
+  {
+    q: "How is this different from ordinary self-improvement writing?",
+    a: "Most self-improvement writing optimises for the feeling of insight, which is why so little of it converts into change. These lectures make specific claims, say where the evidence is weak, and end with something you can act on this week. They do not motivate and they do not flatter.",
+  },
+  {
+    q: "Where should I start?",
+    a: "The lectures are arranged in a recommended reading order on the index page. If you would rather start from a problem than from the beginning, the topics pages group everything by subject — self-discipline, clear thinking, emotional regulation, sleep, strength, purpose.",
+  },
+  {
+    q: "Why is it named after Ayanokoji?",
+    a: "Kiyotaka Ayanokoji is the lens, not the subject. He embodies a particular synthesis — deep observation, restrained action, calculated patience, emotional opacity — that the site is organised around. It is not fan writing, and no knowledge of the source material is needed.",
+  },
+];
 
 export default function HomePage() {
   const lectures = getAllLectures().slice(0, 3);
 
+  const jsonLd = jsonLdGraph(
+    {
+      "@type": "WebPage",
+      "@id": absoluteUrl("/#webpage"),
+      url: absoluteUrl("/"),
+      name: SITE_NAME,
+      description: SITE_DESCRIPTION,
+      isPartOf: { "@id": absoluteUrl("/#website") },
+      publisher: { "@id": absoluteUrl("/#organization") },
+      about: PILLARS.map((p) => ({
+        "@type": "Thing",
+        name: p.headline,
+        url: absoluteUrl(`/topics/${p.slug}`),
+      })),
+    },
+    publisherNode(),
+    {
+      "@type": "FAQPage",
+      "@id": absoluteUrl("/#faq"),
+      mainEntity: FAQ.map(({ q, a }) => ({
+        "@type": "Question",
+        name: q,
+        acceptedAnswer: { "@type": "Answer", text: a },
+      })),
+    }
+  );
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Hero />
       <Manifesto />
       <RecentLectures lectures={lectures} />
       <Pillars />
+      <Questions />
     </>
   );
 }
@@ -23,7 +100,7 @@ function Hero() {
       <div className="mx-auto max-w-4xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-8">
-            beingayanokoji.vercel.app · long-form lectures
+            Long-form lectures · self-discipline, clear thinking, purpose
           </p>
         </FadeIn>
 
@@ -35,9 +112,11 @@ function Hero() {
           yOffset={36}
         />
 
+        {/* The second line reads as part of the headline but is a div, not a
+            second h1 — two h1s on a page is a signal nobody benefits from. */}
         <div className="mt-4">
           <AnimatedText
-            as="h1"
+            as="div"
             text="Compounding in effect."
             className="font-serif italic text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight font-light text-[color:var(--color-accent)]"
             stagger={0.06}
@@ -48,10 +127,11 @@ function Hero() {
 
         <FadeIn delay={1.4}>
           <p className="mt-12 max-w-2xl text-lg text-[color:var(--color-muted)] leading-relaxed">
-            Deeply-researched long-form lectures on cognition, psychology, strength,
-            strategy, and purpose. Written for the reader who has consumed a hundred
-            self-improvement essays and converted almost none of them into change. New
-            lectures keep arriving.
+            Deeply-researched lectures on self-discipline, clear thinking,
+            emotional regulation, strength, strategy, and purpose. Written for
+            the reader who has consumed a hundred self-improvement essays and
+            converted almost none of them into change. Free to read, no account,
+            no newsletter. New lectures keep arriving.
             <BlinkingCursor className="ml-1 text-[color:var(--color-accent)]" />
           </p>
         </FadeIn>
@@ -175,28 +255,74 @@ function Pillars() {
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-3">
             The twelve pillars
           </p>
-          <h2 className="font-serif text-4xl md:text-5xl tracking-tight font-medium mb-16 max-w-2xl">
+          <h2 className="font-serif text-4xl md:text-5xl tracking-tight font-medium mb-6 max-w-2xl">
             Every lecture lives under one of these.
           </h2>
+          <p className="mb-16 max-w-2xl text-[color:var(--color-muted)] leading-relaxed">
+            Each pillar has its own page collecting every lecture that touches
+            it — start from whichever one names your current bottleneck.
+          </p>
         </FadeIn>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[color:var(--color-rule)]/40">
           {pillars.map((p, i) => (
             <FadeIn key={p.num} delay={i * 0.03}>
-              <div className="bg-[color:var(--color-bg)] p-8 h-full min-h-[160px] group hover:bg-[color:var(--color-bg-elevated)] transition-colors">
+              <Link
+                href={`/topics/${p.slug}`}
+                className="flex flex-col bg-[color:var(--color-bg)] p-8 h-full min-h-[160px] group hover:bg-[color:var(--color-bg-elevated)] transition-colors"
+              >
                 <div className="flex items-baseline gap-4 mb-3">
                   <span className="font-serif text-3xl text-[color:var(--color-faint)] group-hover:text-[color:var(--color-accent)] transition-colors">
                     {p.num}
                   </span>
-                  <span className="text-sm uppercase tracking-wider">{p.name}</span>
+                  <h3 className="text-sm uppercase tracking-wider group-hover:text-[color:var(--color-accent)] transition-colors">
+                    {p.headline}
+                  </h3>
                 </div>
                 <p className="font-serif italic text-lg text-[color:var(--color-muted)] leading-snug">
                   {p.note}
                 </p>
-              </div>
+              </Link>
             </FadeIn>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The FAQ rendered as real content. Search engines will not surface a
+ * FAQPage block whose answers are not visible on the page, and a reader
+ * arriving cold deserves the answers anyway.
+ */
+function Questions() {
+  return (
+    <section className="py-32 px-6 border-t border-[color:var(--color-rule)]/40">
+      <div className="mx-auto max-w-4xl">
+        <FadeIn>
+          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-3">
+            Before you start
+          </p>
+          <h2 className="font-serif text-4xl md:text-5xl tracking-tight font-medium mb-16 max-w-2xl">
+            The reasonable questions.
+          </h2>
+        </FadeIn>
+
+        <dl className="divide-y divide-[color:var(--color-rule)]/40 border-y border-[color:var(--color-rule)]/40">
+          {FAQ.map(({ q, a }, i) => (
+            <FadeIn key={q} delay={i * 0.05}>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 py-8">
+                <dt className="md:col-span-5 font-serif text-xl md:text-2xl tracking-tight leading-snug">
+                  {q}
+                </dt>
+                <dd className="md:col-span-7 text-[color:var(--color-muted)] leading-relaxed">
+                  {a}
+                </dd>
+              </div>
+            </FadeIn>
+          ))}
+        </dl>
       </div>
     </section>
   );

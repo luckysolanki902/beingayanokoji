@@ -6,6 +6,14 @@ import { Markdown } from "@/components/Markdown";
 import { ScrollProgress } from "@/components/ScrollProgress";
 import { AnimatedText, FadeIn } from "@/components/AnimatedText";
 import { PillarLegend } from "@/components/PillarLegend";
+import { getLecturePillars, getPillar } from "@/lib/pillars";
+import {
+  SITE_NAME,
+  absoluteUrl,
+  breadcrumbNode,
+  jsonLdGraph,
+  publisherNode,
+} from "@/lib/site";
 
 export async function generateStaticParams() {
   return getAllLectureSlugs().map((slug) => ({ slug }));
@@ -20,20 +28,32 @@ export async function generateMetadata({
   const lec = getLectureBySlug(slug);
   if (!lec) return { title: "Not found" };
 
+  const description = lec.keyClaim || lec.excerpt || "";
+  const url = absoluteUrl(`/lectures/${slug}`);
+
   return {
     title: lec.title,
-    description: lec.keyClaim || lec.excerpt,
+    description,
+    keywords: lec.tags,
     alternates: { canonical: `/lectures/${slug}` },
+    // An unfinished lecture is a placeholder. Letting it be indexed spends the
+    // site's crawl budget on a page that says "come back later" and puts a
+    // thin result in front of the first reader who finds it.
+    robots: lec.published ? undefined : { index: false, follow: true },
     openGraph: {
       title: lec.title,
-      description: lec.keyClaim || lec.excerpt,
+      description,
       type: "article",
+      url,
+      siteName: SITE_NAME,
       tags: lec.tags,
+      ...(lec.publishedAt ? { publishedTime: lec.publishedAt } : {}),
+      ...(lec.updatedAt ? { modifiedTime: lec.updatedAt } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: lec.title,
-      description: lec.keyClaim || lec.excerpt,
+      description,
     },
   };
 }
@@ -139,20 +159,46 @@ export default async function LecturePage({
     );
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: lec.title,
-    description: lec.keyClaim || lec.excerpt,
-    author: { "@type": "Organization", name: "Being Ayanokoji" },
-    publisher: {
-      "@type": "Organization",
-      name: "Being Ayanokoji",
-      url: "https://beingayanokoji.vercel.app",
+  const url = absoluteUrl(`/lectures/${slug}`);
+  const pillars = getLecturePillars(lec.pillar, lec.secondaryPillars);
+
+  const jsonLd = jsonLdGraph(
+    {
+      "@type": "Article",
+      "@id": `${url}#article`,
+      headline: lec.title,
+      description: lec.keyClaim || lec.excerpt,
+      url,
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
+      author: { "@id": absoluteUrl("/#organization") },
+      publisher: { "@id": absoluteUrl("/#organization") },
+      isPartOf: { "@id": absoluteUrl("/#website") },
+      inLanguage: "en",
+      keywords: lec.tags?.join(", "),
+      wordCount: lec.wordCount,
+      // ISO 8601 duration — the format schema.org expects, not "12 min".
+      timeRequired: `PT${lec.readingTimeMin}M`,
+      articleSection: getPillar(lec.pillar)?.headline ?? undefined,
+      // The subjects the lecture is *about*, linked to their topic pages so the
+      // article and the hub reinforce each other rather than competing.
+      about: pillars.map((p) => ({
+        "@type": "Thing",
+        name: p.headline,
+        url: absoluteUrl(`/topics/${p.slug}`),
+      })),
+      // Dates only when the front matter actually carries them. An invented
+      // publication date is worse than none.
+      ...(lec.publishedAt ? { datePublished: lec.publishedAt } : {}),
+      ...(lec.updatedAt ? { dateModified: lec.updatedAt } : {}),
+      isAccessibleForFree: true,
     },
-    keywords: lec.tags?.join(", "),
-    wordCount: lec.wordCount,
-  };
+    publisherNode(),
+    breadcrumbNode([
+      { name: "Home", path: "/" },
+      { name: "Lectures", path: "/lectures" },
+      { name: lec.title, path: `/lectures/${slug}` },
+    ])
+  );
 
   return (
     <>
@@ -170,7 +216,19 @@ export default async function LecturePage({
                 Lectures
               </Link>
               <span className="text-[color:var(--color-faint)]">/</span>
-              <span>Pillar {lec.pillar}</span>
+              {/* Links to the topic page rather than naming a pillar number —
+                  the number means nothing to a first-time reader, and the link
+                  is what ties the essay to its subject hub. */}
+              {getPillar(lec.pillar) ? (
+                <Link
+                  href={`/topics/${getPillar(lec.pillar)!.slug}`}
+                  className="hover:text-[color:var(--color-fg)] transition-colors"
+                >
+                  {getPillar(lec.pillar)!.headline}
+                </Link>
+              ) : (
+                <span>Pillar {lec.pillar}</span>
+              )}
               {lec.difficulty && (
                 <>
                   <span className="text-[color:var(--color-faint)]">/</span>
