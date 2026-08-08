@@ -1,55 +1,47 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-export const alt =
-  "Being Ayanokoji, long-form lectures on self-discipline and clear thinking";
+export const alt = "Kiyotaka Ayanokoji seated in his Class D uniform";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function OG() {
-  return new ImageResponse((<div
+/**
+ * The source artwork is 1200 × 800. Social cards use 1200 × 630, so it is
+ * centre-cropped rather than stretched; Ayanokoji remains fully framed across
+ * Twitter/X, Discord, WhatsApp and Open Graph previews.
+ */
+export default async function OpenGraphImage() {
+  // Embed the local source so image generation does not depend on fetching its
+  // own deployment URL (which is unavailable while Vercel is still building).
+  const source = await readFile(
+    join(process.cwd(), "public", "images", "ayanokoji-full.jpg"),
+  );
+  const image = `data:image/jpeg;base64,${source.toString("base64")}`;
+
+  return new ImageResponse(
+    <div
+      style={{
+        display: "flex",
+        width: "100%",
+        height: "100%",
+        background: "#f7f8f9",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={image}
+        alt=""
+        width={1200}
+        height={800}
         style={{
-          background: "#0a0a0a",
           width: "100%",
           height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: 80,
-          color: "#f4f4f5",
-          fontFamily: "serif",
+          objectFit: "cover",
+          objectPosition: "center top",
         }}
-      >
-        <div
-          style={{
-            display: "flex",
-            fontSize: 22,
-            letterSpacing: 6,
-            color: "#8a8a8a",
-            textTransform: "uppercase",
-          }}
-        >
-          being ayanokoji
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 90, fontWeight: 500, letterSpacing: -2, lineHeight: 1 }}>
-            Calm in tone.
-          </div>
-          <div
-            style={{
-              fontSize: 90,
-              fontWeight: 300,
-              fontStyle: "italic",
-              color: "#e6a259",
-              letterSpacing: -2,
-              lineHeight: 1,
-            }}
-          >
-            Heavy in substance.
-          </div>
-        </div>
-        <div style={{ display: "flex", fontSize: 26, color: "#a1a1aa", fontStyle: "italic" }}>
-          Self-discipline · Clear thinking · Strength · Strategy · Purpose
-        </div>
-      </div>),
-    { ...size });
+      />
+    </div>,
+    size,
+  );
 }

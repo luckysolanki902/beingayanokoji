@@ -43,10 +43,9 @@ export function EnrolForm({ next }: { next?: string }) {
           name="email"
           required
           autoComplete="email"
-          autoFocus
           spellCheck={false}
           placeholder="you@example.com"
-          className="mt-2 w-full border border-[color:var(--rule)] bg-transparent px-4 py-3 text-sm outline-none transition-colors placeholder:text-[color:var(--faint)] focus:border-[color:var(--accent)]"
+          className="mt-2 w-full border border-[color:var(--rule)] bg-transparent px-4 py-3 text-base outline-none transition-colors placeholder:text-[color:var(--faint)] focus:border-[color:var(--accent)] sm:text-sm"
         />
       </label>
 
@@ -64,7 +63,7 @@ export function EnrolForm({ next }: { next?: string }) {
           // a password to a returning reader is the more annoying mistake.
           autoComplete="current-password"
           placeholder="At least 8 characters"
-          className="mt-2 w-full border border-[color:var(--rule)] bg-transparent px-4 py-3 text-sm outline-none transition-colors placeholder:text-[color:var(--faint)] focus:border-[color:var(--accent)]"
+          className="mt-2 w-full border border-[color:var(--rule)] bg-transparent px-4 py-3 text-base outline-none transition-colors placeholder:text-[color:var(--faint)] focus:border-[color:var(--accent)] sm:text-sm"
         />
       </label>
 

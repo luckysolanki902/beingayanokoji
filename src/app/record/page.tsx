@@ -325,9 +325,9 @@ export default async function RecordPage() {
             </p>) : (<ul className="mt-4 divide-y divide-[color:var(--rule)] border-y border-[color:var(--rule)] font-mono text-xs">
               {ledger.map((entry) => (<li
                   key={entry.id}
-                  className="flex items-baseline justify-between gap-4 py-3"
+                  className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 py-3"
                 >
-                  <span className="min-w-0 flex-1 truncate font-sans text-[color:var(--muted)]">
+                  <span className="w-full min-w-0 font-sans leading-relaxed text-[color:var(--muted)] sm:w-auto sm:flex-1 sm:truncate">
                     {entry.description}
                   </span>
                   <span

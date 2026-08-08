@@ -130,6 +130,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -143,6 +144,14 @@ body {
   transition:
     background-color 400ms ease,
     color 400ms ease;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
 }
 
 ::selection {
@@ -410,6 +419,28 @@ select:focus-visible {
   line-height: 1.6;
 }
 
+.prose-lecture img,
+.prose-lecture video {
+  max-width: 100%;
+  height: auto;
+}
+
+.prose-lecture iframe {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
+/* GFM tables and long code samples should scroll inside the article rather
+   than silently widening the whole phone viewport. */
+.prose-lecture table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .prose-lecture pre code {
   background: transparent;
   padding: 0;
@@ -448,6 +479,12 @@ h3:hover .heading-anchor {
   }
   .prose-lecture > p:first-of-type::first-letter {
     font-size: 3.25rem;
+  }
+  .prose-lecture blockquote {
+    padding-left: 1rem;
+  }
+  .prose-lecture pre {
+    padding: 1rem;
   }
 }
 

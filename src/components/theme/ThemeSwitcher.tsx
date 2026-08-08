@@ -21,7 +21,7 @@ export function ThemeSwitcher({ className = "" }: { className?: string }) {
   const { theme, setTheme, ready } = useTheme();
 
   return (<div
-      className={`flex items-center gap-0.5 rounded-full border border-[color:var(--rule)] bg-[color:var(--bg-elevated)]/80 p-1 backdrop-blur-md ${className}`}
+      className={`flex items-center gap-0.5 rounded-full border border-[color:var(--rule)] bg-[color:var(--bg-elevated)]/80 p-0.5 backdrop-blur-md sm:p-1 ${className}`}
       role="radiogroup"
       aria-label="Reading theme"
     >
@@ -36,7 +36,7 @@ export function ThemeSwitcher({ className = "" }: { className?: string }) {
             aria-checked={active}
             aria-label={`${t.label}, ${t.note}`}
             onClick={() => setTheme(t.id)}
-            className="group relative flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+            className="group relative flex h-7 w-7 items-center justify-center rounded-full transition-colors sm:h-8 sm:w-8"
           >
             {active && (<motion.span
                 layoutId="theme-pip"
@@ -44,7 +44,7 @@ export function ThemeSwitcher({ className = "" }: { className?: string }) {
                 transition={{ type: "spring", stiffness: 400, damping: 32 }}
               />)}
             <span
-              className={`font-jp relative text-[15px] leading-none transition-colors ${
+              className={`font-jp relative text-sm leading-none transition-colors sm:text-[15px] ${
                 active
                   ? "text-[color:var(--bg)]"
                   : "text-[color:var(--muted)] group-hover:text-[color:var(--fg)]"

@@ -207,7 +207,7 @@ export function IdCard({
         className="mt-4 w-full border border-[color:var(--rule)]"
       />
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <input
           ref={fileInput}
           type="file"
@@ -224,7 +224,7 @@ export function IdCard({
           type="button"
           onClick={issue}
           disabled={issuing || (!issued && !canAfford)}
-          className="border border-[color:var(--accent)] bg-[color:var(--accent)]/10 px-6 py-2.5 text-[11px] uppercase tracking-[0.2em] transition-colors hover:bg-[color:var(--accent)] hover:text-[color:var(--bg)] disabled:cursor-not-allowed disabled:border-[color:var(--rule)] disabled:bg-transparent disabled:text-[color:var(--faint)] disabled:hover:bg-transparent"
+          className="w-full border border-[color:var(--accent)] bg-[color:var(--accent)]/10 px-4 py-3 text-center text-[11px] uppercase tracking-[0.16em] transition-colors hover:bg-[color:var(--accent)] hover:text-[color:var(--bg)] disabled:cursor-not-allowed disabled:border-[color:var(--rule)] disabled:bg-transparent disabled:text-[color:var(--faint)] disabled:hover:bg-transparent sm:w-auto sm:px-6 sm:py-2.5 sm:tracking-[0.2em]"
         >
           {issuing
             ? "Issuing…"
@@ -239,7 +239,7 @@ export function IdCard({
           type="button"
           onClick={() => fileInput.current?.click()}
           disabled={pending}
-          className="border border-[color:var(--rule)] px-6 py-2.5 text-[11px] uppercase tracking-[0.2em] transition-colors hover:border-[color:var(--fg)] disabled:opacity-40"
+          className="w-full border border-[color:var(--rule)] px-4 py-3 text-center text-[11px] uppercase tracking-[0.16em] transition-colors hover:border-[color:var(--fg)] disabled:opacity-40 sm:w-auto sm:px-6 sm:py-2.5 sm:tracking-[0.2em]"
         >
           {pending ? "Working…" : "Upload a photograph"}
         </button>
@@ -248,7 +248,7 @@ export function IdCard({
           type="button"
           onClick={clearPhoto}
           disabled={pending}
-          className="text-[11px] uppercase tracking-[0.2em] text-[color:var(--muted)] transition-colors hover:text-[color:var(--fg)] disabled:opacity-40"
+          className="min-h-11 w-full text-center text-[11px] uppercase tracking-[0.2em] text-[color:var(--muted)] transition-colors hover:text-[color:var(--fg)] disabled:opacity-40 sm:min-h-0 sm:w-auto"
         >
           Remove photo
         </button>
@@ -265,13 +265,13 @@ export function IdCard({
       {/* The name is the one thing on the card a student chooses. */}
       <div className="mt-5">
         {editingName ? (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
             <input
               value={draftName}
               onChange={(e) => setDraftName(e.target.value)}
               maxLength={60}
               aria-label="The name printed on your card"
-              className="border border-[color:var(--rule)] bg-transparent px-3 py-2 text-sm outline-none transition-colors focus:border-[color:var(--accent)]"
+              className="col-span-2 w-full border border-[color:var(--rule)] bg-transparent px-3 py-3 text-base outline-none transition-colors focus:border-[color:var(--accent)] sm:w-auto sm:py-2 sm:text-sm"
             />
             <button
               type="button"

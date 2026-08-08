@@ -117,10 +117,10 @@ export default async function LecturePage({
   // describes the lecture, not the session that happened to request it.
   const freeToAll = (entry?.index ?? 0) === 0;
 
-  const nav = (prev || next) && (<nav className="mx-auto max-w-3xl mt-24 pt-12 border-t border-[color:var(--color-rule)]/40 grid grid-cols-2 gap-8">
+  const nav = (prev || next) && (<nav className="mx-auto mt-20 grid max-w-3xl grid-cols-1 gap-3 border-t border-[color:var(--color-rule)]/40 pt-8 sm:mt-24 sm:grid-cols-2 sm:gap-8 sm:pt-12">
       {prev ? (<Link
           href={`/lectures/${prev.slug}`}
-          className="group block hover:bg-[color:var(--color-bg-elevated)]/30 p-4 -m-4 transition-colors"
+          className="group block p-4 transition-colors hover:bg-[color:var(--color-bg-elevated)]/30 sm:-m-4"
         >
           <div className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)] mb-2">
             ← Previous
@@ -131,7 +131,7 @@ export default async function LecturePage({
         </Link>) : (<div />)}
       {next ? (<Link
           href={`/lectures/${next.slug}`}
-          className="group block text-right hover:bg-[color:var(--color-bg-elevated)]/30 p-4 -m-4 transition-colors"
+          className="group block p-4 text-left transition-colors hover:bg-[color:var(--color-bg-elevated)]/30 sm:-m-4 sm:text-right"
         >
           <div className="text-xs uppercase tracking-[0.2em] text-[color:var(--color-muted)] mb-2">
             Next →
@@ -146,7 +146,7 @@ export default async function LecturePage({
     return (<article className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <header className="mx-auto max-w-3xl">
           <FadeIn>
-            <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[color:var(--color-muted)] mb-8">
+            <div className="mb-8 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-muted)] sm:text-xs sm:tracking-[0.25em]">
               <Link href="/lectures" className="hover:text-[color:var(--color-fg)] transition-colors">
                 Lectures
               </Link>
@@ -158,7 +158,7 @@ export default async function LecturePage({
           <AnimatedText
             as="h1"
             text={lec.title}
-            className="font-serif text-4xl md:text-6xl tracking-tight font-medium leading-[1.05]"
+            className="font-serif text-[clamp(2.25rem,11vw,3rem)] font-medium leading-[1.05] tracking-tight md:text-6xl"
             stagger={0.035}
           />
 
@@ -278,7 +278,7 @@ export default async function LecturePage({
       <article className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <header className="mx-auto max-w-3xl mb-16">
           <FadeIn>
-            <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[color:var(--color-muted)] mb-8">
+            <div className="mb-8 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-muted)] sm:text-xs sm:tracking-[0.25em]">
               <Link href="/lectures" className="hover:text-[color:var(--color-fg)] transition-colors">
                 Lectures
               </Link>
@@ -302,7 +302,7 @@ export default async function LecturePage({
           <AnimatedText
             as="h1"
             text={lec.title}
-            className="font-serif text-4xl md:text-6xl tracking-tight font-medium leading-[1.05]"
+            className="font-serif text-[clamp(2.25rem,11vw,3rem)] font-medium leading-[1.05] tracking-tight md:text-6xl"
             stagger={0.035}
           />
 
@@ -313,7 +313,7 @@ export default async function LecturePage({
             </FadeIn>)}
 
           <FadeIn delay={0.6}>
-            <div className="mt-8 flex items-center gap-6 text-xs text-[color:var(--color-muted)] font-mono">
+            <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs text-[color:var(--color-muted)] sm:gap-x-6">
               <span>{lec.readingTimeMin} min</span>
               <span className="text-[color:var(--color-faint)]">·</span>
               <span>{lec.wordCount.toLocaleString()} words</span>

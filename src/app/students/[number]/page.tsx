@@ -97,12 +97,12 @@ export default async function StudentPage({
         <FadeIn delay={0.1}>
           <div className="mt-8 border border-[color:var(--rule)] bg-[color:var(--bg-elevated)]/40">
             <div className="flex items-center justify-center border-b border-[color:var(--rule)] bg-[color:var(--accent)] py-4">
-              <span className="font-jp text-lg tracking-[0.5em] text-[color:var(--bg)]">
+              <span className="font-jp text-lg tracking-[0.35em] text-[color:var(--bg)] sm:tracking-[0.5em]">
                 学生証
               </span>
             </div>
 
-            <div className="flex flex-col items-center gap-6 p-7 sm:flex-row sm:items-start md:p-9">
+            <div className="flex flex-col items-center gap-6 p-5 sm:flex-row sm:items-start sm:p-7 md:p-9">
               <div className="flex h-40 w-32 shrink-0 items-center justify-center overflow-hidden border-2 border-[color:var(--accent)] bg-[color:var(--bg)]">
                 {student.photo ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -122,7 +122,7 @@ export default async function StudentPage({
                 <p className="text-[10px] uppercase tracking-[0.24em] text-[color:var(--faint)]">
                   氏名 · Name
                 </p>
-                <h1 className="font-serif mt-1 text-3xl tracking-tight md:text-4xl">
+                <h1 className="font-serif mt-1 break-words text-[clamp(1.75rem,9vw,2.25rem)] tracking-tight md:text-4xl">
                   {student.name}
                 </h1>
 
@@ -161,8 +161,8 @@ export default async function StudentPage({
         <FadeIn delay={0.25}>
           <div className="mt-12 border-t border-[color:var(--rule)] pt-8 text-center">
             <p className="text-sm leading-relaxed text-[color:var(--muted)]">
-              Points are earned by answering examination questions correctly at
-              the first attempt. Everyone starts in Class D.
+              Private points record a student&apos;s lifetime total. Everyone
+              starts in Class D.
             </p>
             <Link
               href="/enroll"

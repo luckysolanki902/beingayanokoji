@@ -89,7 +89,7 @@ export function DestructionOrder({ balance }: { balance: number }) {
               onChange={(e) => setNote(e.target.value)}
               rows={4}
               maxLength={2000}
-              className="mt-2 w-full border border-[color:var(--rule)] bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-[color:var(--accent)]"
+              className="mt-2 w-full border border-[color:var(--rule)] bg-transparent px-4 py-3 text-base outline-none transition-colors focus:border-[color:var(--accent)] sm:text-sm"
             />
           </label>
           <div className="mt-5 flex flex-wrap items-center gap-4">

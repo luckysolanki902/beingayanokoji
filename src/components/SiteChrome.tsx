@@ -31,12 +31,17 @@ export function SiteHeader() {
   const isHome = pathname === "/";
 
   return (<header className="relative">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-5 md:px-8 md:pt-6">
-        <nav className="flex items-center gap-5 text-[11px] uppercase tracking-[0.18em] text-[color:var(--muted)] md:gap-7 md:text-xs">
+      <div className="mx-auto max-w-5xl px-4 pt-3 sm:flex sm:items-center sm:justify-between sm:px-5 sm:pt-5 md:px-8 md:pt-6">
+        {/* Phones get two intentional rows. Keeping navigation, enrolment and
+            five room controls on one line made the right edge disappear below
+            430px. Navigation stays first visually and in the accessibility
+            tree; the controls settle beneath it until the noticeboard row has
+            enough room at `sm`. */}
+        <nav className="grid min-h-11 grid-cols-4 items-center border-y border-[color:var(--rule)] text-center text-[10px] uppercase tracking-[0.12em] text-[color:var(--muted)] sm:flex sm:min-h-0 sm:gap-5 sm:border-0 sm:text-left sm:text-[11px] sm:tracking-[0.18em] md:gap-7 md:text-xs">
           <Link
             href="/"
             aria-current={isHome ? "page" : undefined}
-            className={`transition-colors hover:text-[color:var(--fg)] ${
+            className={`flex h-11 items-center justify-center transition-colors hover:text-[color:var(--fg)] sm:h-auto ${
               isHome ? "text-[color:var(--fg)]" : ""
             }`}
           >
@@ -44,13 +49,13 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/lectures"
-            className="transition-colors hover:text-[color:var(--fg)]"
+            className="flex h-11 items-center justify-center transition-colors hover:text-[color:var(--fg)] sm:h-auto"
           >
             Lectures
           </Link>
           <Link
             href="/topics"
-            className="transition-colors hover:text-[color:var(--fg)]"
+            className="flex h-11 items-center justify-center transition-colors hover:text-[color:var(--fg)] sm:h-auto"
           >
             Topics
           </Link>
@@ -63,7 +68,7 @@ export function SiteHeader() {
           <SupportButton />
         </nav>
 
-        <div className="flex items-center gap-4 md:gap-5">
+        <div className="mt-2 flex min-h-11 items-center justify-end gap-3 sm:mt-0 sm:min-h-0 md:gap-5">
           <StudentBadge />
           <ThemeSwitcher />
         </div>
@@ -79,7 +84,7 @@ export function SiteHeader() {
           />
           <div className="relative mx-auto max-w-3xl px-5 text-center">
             <div className="border-t border-[color:var(--rule)]" />
-            <h1 className="font-serif mt-6 text-[1.9rem] font-medium tracking-[0.16em] uppercase leading-none md:mt-7 md:text-[2.9rem] md:tracking-[0.2em]">
+            <h1 className="font-serif mt-6 text-[clamp(1.45rem,7vw,1.9rem)] font-medium tracking-[0.12em] uppercase leading-none sm:tracking-[0.16em] md:mt-7 md:text-[2.9rem] md:tracking-[0.2em]">
               Being Ayanokoji
             </h1>
             <p className="font-jp mt-4 text-[10px] tracking-[0.34em] text-[color:var(--faint)] md:text-[11px]">
@@ -127,7 +132,7 @@ function StudentBadge() {
     return (
       <Link
         href="/enroll"
-        className="border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 py-1.5 text-[11px] uppercase tracking-[0.18em] text-[color:var(--bg)] transition-opacity hover:opacity-85 md:px-5 md:text-xs"
+        className="flex min-h-11 items-center border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 py-1.5 text-[11px] uppercase tracking-[0.18em] text-[color:var(--bg)] transition-opacity hover:opacity-85 sm:min-h-0 md:px-5 md:text-xs"
       >
         Enrol
       </Link>
@@ -141,7 +146,7 @@ function StudentBadge() {
       href="/record"
       aria-label={`Your student card. ${student.name}, ${student.points.toLocaleString()} personal points`}
       title={`${student.name} · ${student.points.toLocaleString()} personal points`}
-      className="group flex items-center gap-2.5 rounded-full border border-[color:var(--rule)] py-1 pl-1 pr-3 transition-colors hover:border-[color:var(--accent)]"
+      className="group flex min-h-11 items-center gap-2.5 rounded-full border border-[color:var(--rule)] py-1 pl-1 pr-3 transition-colors hover:border-[color:var(--accent)] sm:min-h-0"
     >
       <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[color:var(--rule)] bg-[color:var(--bg-elevated)] transition-colors group-hover:border-[color:var(--accent)]">
         {hasPhoto ? (

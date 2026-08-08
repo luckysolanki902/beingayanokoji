@@ -108,7 +108,7 @@ export default async function TopicPage({
       <div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <div className="mx-auto max-w-4xl">
           <FadeIn>
-            <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[color:var(--color-muted)] mb-6">
+            <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-[11px] uppercase tracking-[0.18em] text-[color:var(--color-muted)] sm:text-xs sm:tracking-[0.25em]">
               <Link href="/topics" className="hover:text-[color:var(--color-fg)] transition-colors">
                 Topics
               </Link>
@@ -120,7 +120,7 @@ export default async function TopicPage({
           <AnimatedText
             as="h1"
             text={pillar.headline}
-            className="font-serif text-5xl md:text-7xl tracking-tight font-medium leading-none"
+            className="font-serif text-[clamp(2.5rem,12vw,3.5rem)] font-medium leading-none tracking-tight md:text-7xl"
           />
 
           <FadeIn delay={0.35}>

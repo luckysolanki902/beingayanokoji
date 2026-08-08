@@ -74,7 +74,7 @@ export default function TopicsPage() {
           <AnimatedText
             as="h1"
             text="Twelve subjects. Pick your weakest."
-            className="font-serif text-5xl md:text-7xl tracking-tight font-medium leading-none"
+            className="font-serif text-[clamp(2.5rem,12vw,3.5rem)] font-medium leading-[0.98] tracking-tight md:text-7xl"
           />
 
           <FadeIn delay={0.5}>
@@ -88,11 +88,11 @@ export default function TopicsPage() {
             </p>
           </FadeIn>
 
-          <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-px bg-[color:var(--color-rule)]/40 border border-[color:var(--color-rule)]/40">
+          <div className="mt-14 grid grid-cols-1 gap-px border border-[color:var(--color-rule)]/40 bg-[color:var(--color-rule)]/40 md:mt-20 md:grid-cols-2">
             {pillars.map((p, i) => (<FadeIn key={p.slug} delay={i * 0.04}>
                 <Link
                   href={`/topics/${p.slug}`}
-                  className="group flex h-full flex-col bg-[color:var(--color-bg)] p-8 hover:bg-[color:var(--color-bg-elevated)] transition-colors"
+                  className="group flex h-full flex-col bg-[color:var(--color-bg)] p-6 transition-colors hover:bg-[color:var(--color-bg-elevated)] sm:p-8"
                 >
                   <div className="flex items-baseline gap-4 mb-3">
                     <span className="font-serif text-3xl text-[color:var(--color-faint)] group-hover:text-[color:var(--color-accent)] transition-colors">

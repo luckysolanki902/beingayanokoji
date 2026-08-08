@@ -305,7 +305,7 @@ export function PointsShop({
           {student.signedIn && !config && !loadFailed && (
             <div className="space-y-3" aria-hidden="true">
               <div className="h-4 w-32 animate-pulse bg-[color:var(--rule)]/60" />
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div className="h-20 animate-pulse bg-[color:var(--rule)]/40" />
                 <div className="h-20 animate-pulse bg-[color:var(--rule)]/40" />
                 <div className="h-20 animate-pulse bg-[color:var(--rule)]/40" />
@@ -328,7 +328,7 @@ export function PointsShop({
                   How many
                 </legend>
 
-                <div className="grid grid-cols-3 gap-2 md:gap-3">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 md:gap-3">
                   {tiers.map((t) => {
                     const active = tier === t;
                     const pts = pointsForDisplay(config.presets[t], config.currency);
@@ -391,7 +391,7 @@ export function PointsShop({
                       setStatus("idle");
                     }}
                     onFocus={() => setTier("custom")}
-                    className={`w-full bg-transparent px-3 py-3 text-sm outline-none placeholder:text-[color:var(--faint)] ${
+                    className={`w-full bg-transparent px-3 py-3 text-base outline-none placeholder:text-[color:var(--faint)] sm:text-sm ${
                       tier === "custom" ? "text-[color:var(--accent)]" : ""
                     }`}
                   />
