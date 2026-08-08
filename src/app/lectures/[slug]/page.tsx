@@ -111,7 +111,7 @@ export default async function LecturePage({
 
   if (!lec.published) {
     return (
-      <article className="pt-32 pb-24 px-6">
+      <article className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <header className="mx-auto max-w-3xl">
           <FadeIn>
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[color:var(--color-muted)] mb-8">
@@ -208,7 +208,7 @@ export default async function LecturePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <article className="pt-32 pb-24 px-6">
+      <article className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <header className="mx-auto max-w-3xl mb-16">
           <FadeIn>
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[color:var(--color-muted)] mb-8">

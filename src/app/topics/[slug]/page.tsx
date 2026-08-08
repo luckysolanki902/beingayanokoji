@@ -105,7 +105,7 @@ export default async function TopicPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="pt-32 pb-24 px-6">
+      <div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <div className="mx-auto max-w-4xl">
           <FadeIn>
             <div className="flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-[color:var(--color-muted)] mb-6">

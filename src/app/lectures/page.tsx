@@ -58,7 +58,7 @@ export default function LecturesIndexPage() {
   );
 
   return (
-    <div className="pt-32 pb-24 px-6">
+    <div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

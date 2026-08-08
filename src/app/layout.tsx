@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Shippori_Mincho, Zen_Kaku_Gothic_New, Klee_One } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { NO_FLASH_SCRIPT } from "@/lib/themes";
 import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
@@ -15,17 +17,37 @@ import {
 } from "@/lib/site";
 import "./globals.css";
 
-const inter = Inter({
+/*
+ * A Japanese type system rather than a Western editorial one.
+ *
+ * Only the latin subset is requested from each. These faces carry full
+ * Japanese coverage, which runs to megabytes; the handful of kanji in the
+ * chrome are rendered with the reader's own system mincho instead (see
+ * `.font-jp`), so nothing here needs the japanese subset.
+ */
+
+/** 明朝 — the display face. Brush-derived terminals, strong vertical stress. */
+const mincho = Shippori_Mincho({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-mincho",
   display: "swap",
 });
 
-const fraunces = Fraunces({
+/** ゴシック — body and UI. Even, unfussy, holds up at small sizes. */
+const gothic = Zen_Kaku_Gothic_New({
   subsets: ["latin"],
-  variable: "--font-fraunces",
+  weight: ["300", "400", "500", "700"],
+  variable: "--font-gothic",
   display: "swap",
-  axes: ["opsz"],
+});
+
+/** A Japanese school-handwriting face, for labels that should read as chalk. */
+const klee = Klee_One({
+  subsets: ["latin"],
+  weight: ["400", "600"],
+  variable: "--font-klee",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -77,8 +99,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
-  colorScheme: "dark",
+  // The default room — 教室, afternoon light on manuscript paper.
+  themeColor: "#f2efe4",
+  colorScheme: "light dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -106,8 +129,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
+    <html
+      lang="en"
+      className={`${mincho.variable} ${gothic.variable} ${klee.variable}`}
+      suppressHydrationWarning
+    >
       <head>
+        {/* Applies the reader's room before first paint. Without it every load
+            would flash the default classroom before switching. */}
+        <script dangerouslySetInnerHTML={{ __html: NO_FLASH_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
@@ -118,9 +148,11 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.paypal.com" />
       </head>
       <body className="grain">
-        <SiteHeader />
-        <main className="min-h-screen">{children}</main>
-        <SiteFooter />
+        <ThemeProvider>
+          <SiteHeader />
+          <main className="min-h-screen">{children}</main>
+          <SiteFooter />
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

@@ -94,62 +94,75 @@ export default function HomePage() {
   );
 }
 
+/**
+ * The masthead in the site chrome carries the name, so the front page opens on
+ * the argument instead of repeating it. The thesis is set as the lead — the
+ * most characteristic thing this site has is its sentences, so those go first
+ * rather than a hero image or a row of statistics.
+ */
 function Hero() {
   return (
-    <section className="relative pt-40 pb-24 px-6">
-      <div className="mx-auto max-w-4xl">
-        <FadeIn>
-          <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-8">
-            Long-form lectures · self-discipline, clear thinking, purpose
-          </p>
-        </FadeIn>
-
+    <section className="px-5 pt-14 pb-20 md:px-8 md:pt-20 md:pb-28">
+      <div className="mx-auto max-w-3xl text-center">
+        {/* Set as three deliberate lines rather than one wrapping block. The
+            tagline is three beats, and letting the browser choose the breaks
+            put them in the middle of a sentence. */}
         <AnimatedText
-          as="h1"
-          text="Calm in tone. Heavy in substance."
-          className="font-serif text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight font-medium"
-          stagger={0.06}
-          yOffset={36}
+          as="h2"
+          text="Calm in tone."
+          className="font-serif text-[2rem] font-medium leading-[1.1] tracking-tight md:text-[3.4rem]"
+          stagger={0.05}
+          yOffset={28}
+        />
+        <AnimatedText
+          as="div"
+          text="Heavy in substance."
+          className="font-serif text-[2rem] font-medium leading-[1.1] tracking-tight md:text-[3.4rem]"
+          stagger={0.05}
+          delay={0.3}
+          yOffset={28}
+        />
+        <AnimatedText
+          as="div"
+          text="Compounding in effect."
+          className="font-serif text-[2rem] font-normal italic leading-[1.1] tracking-tight text-[color:var(--accent)] md:text-[3.4rem]"
+          stagger={0.05}
+          delay={0.62}
+          yOffset={28}
         />
 
-        {/* The second line reads as part of the headline but is a div, not a
-            second h1 — two h1s on a page is a signal nobody benefits from. */}
-        <div className="mt-4">
-          <AnimatedText
-            as="div"
-            text="Compounding in effect."
-            className="font-serif italic text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight font-light text-[color:var(--color-accent)]"
-            stagger={0.06}
-            delay={0.5}
-            yOffset={36}
-          />
-        </div>
-
-        <FadeIn delay={1.4}>
-          <p className="mt-12 max-w-2xl text-lg text-[color:var(--color-muted)] leading-relaxed">
+        <FadeIn delay={1.35}>
+          <p className="mx-auto mt-9 max-w-xl text-[15px] leading-[1.85] text-[color:var(--muted)] md:text-base">
             Deeply-researched lectures on self-discipline, clear thinking,
             emotional regulation, strength, strategy, and purpose. Written for
             the reader who has consumed a hundred self-improvement essays and
-            converted almost none of them into change. Free to read, no account,
-            no newsletter. New lectures keep arriving.
-            <BlinkingCursor className="ml-1 text-[color:var(--color-accent)]" />
+            converted almost none of them into change.
+            <BlinkingCursor className="ml-1 text-[color:var(--accent)]" />
+          </p>
+        </FadeIn>
+
+        <FadeIn delay={1.55}>
+          <p className="font-hand mt-6 text-sm text-[color:var(--faint)]">
+            Free to read. No account, no newsletter.
           </p>
         </FadeIn>
 
         <FadeIn delay={1.7}>
-          <div className="mt-12 flex flex-col sm:flex-row gap-4">
+          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
             <Link
               href="/lectures"
-              className="group inline-flex items-center gap-3 px-6 py-3 border border-[color:var(--color-fg)] hover:bg-[color:var(--color-fg)] hover:text-[color:var(--color-bg)] transition-all duration-300"
+              className="group inline-flex items-center gap-3 border border-[color:var(--fg)] px-7 py-3 text-[11px] uppercase tracking-[0.2em] transition-colors duration-300 hover:bg-[color:var(--fg)] hover:text-[color:var(--bg)]"
             >
-              <span className="text-sm tracking-wide">Start reading</span>
-              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+              <span>Start reading</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">
+                →
+              </span>
             </Link>
             <Link
               href="/about"
-              className="inline-flex items-center gap-3 px-6 py-3 text-sm text-[color:var(--color-muted)] hover:text-[color:var(--color-fg)] transition-colors"
+              className="text-[11px] uppercase tracking-[0.2em] text-[color:var(--muted)] transition-colors hover:text-[color:var(--fg)]"
             >
-              <span>The philosophy</span>
+              The philosophy
             </Link>
           </div>
         </FadeIn>
@@ -168,8 +181,8 @@ function Manifesto() {
   ];
 
   return (
-    <section className="py-32 px-6 border-t border-[color:var(--color-rule)]/40">
-      <div className="mx-auto max-w-4xl">
+    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+      <div className="mx-auto max-w-3xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-12">
             The five lines
@@ -195,8 +208,8 @@ function Manifesto() {
 function RecentLectures({ lectures }: { lectures: ReturnType<typeof getAllLectures> }) {
   if (lectures.length === 0) return null;
   return (
-    <section className="py-32 px-6 border-t border-[color:var(--color-rule)]/40">
-      <div className="mx-auto max-w-4xl">
+    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+      <div className="mx-auto max-w-3xl">
         <FadeIn>
           <div className="flex items-end justify-between mb-12">
             <div>
@@ -249,8 +262,8 @@ function Pillars() {
   const pillars = PILLARS;
 
   return (
-    <section className="py-32 px-6 border-t border-[color:var(--color-rule)]/40">
-      <div className="mx-auto max-w-6xl">
+    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+      <div className="mx-auto max-w-4xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-3">
             The twelve pillars
@@ -298,8 +311,8 @@ function Pillars() {
  */
 function Questions() {
   return (
-    <section className="py-32 px-6 border-t border-[color:var(--color-rule)]/40">
-      <div className="mx-auto max-w-4xl">
+    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+      <div className="mx-auto max-w-3xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-3">
             Before you start

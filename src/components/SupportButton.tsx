@@ -29,9 +29,9 @@ export function SupportButton() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-sm text-[color:var(--color-muted)] hover:text-[color:var(--color-accent)] transition-colors"
+        className="rounded-full border border-[color:var(--accent)]/40 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[color:var(--accent)] transition-colors hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)]/10 md:text-xs"
       >
-      Sustain
+        Sustain
       </button>
 
       {mounted &&

@@ -1,38 +1,235 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+/*
+  Token layer.
 
-  --color-bg: oklch(0.14 0.005 270);
-  --color-bg-elevated: oklch(0.17 0.005 270);
-  --color-fg: oklch(0.96 0.005 270);
-  --color-muted: oklch(0.65 0.005 270);
---color-faint: oklch(0.60 0.005 270);
-  --color-accent: oklch(0.78 0.12 60);
-  --color-rule: oklch(0.25 0.005 270);
+  Every theme sets the raw `--bg` / `--fg` / … properties; this block maps them
+  into Tailwind so `bg-bg`, `text-fg`, `border-rule` generate CSS, and re-exports
+  them under the `--color-*` names the existing markup already references.
+
+  `inline` matters: without it Tailwind would bake the *default* room's values
+  into the utilities and switching themes would do nothing.
+*/
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-rule: var(--rule);
+
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-hand: var(--font-chalk);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
+
+/* ------------------------------------------------------------ the rooms */
+
+/*
+  The theme class lands on <html>, not <body>. A custom property whose value
+  contains var() is substituted once, on the element that declares it — so the
+  `--color-* : var(--…)` mappings above and the room that defines those values
+  have to be the same element, or every token silently resolves to the default.
+*/
+
+:root,
+:root.theme-classroom {
+  /* 教室 — afternoon light through the windows, chalk dust, manuscript paper.
+     The accent is chalkboard green because Japanese school boards are green;
+     the crimson of the blazer is held back for markers that mean something. */
+  --bg: #f2efe4;
+  --bg-elevated: #e8e3d3;
+  --fg: #23241f;
+  --muted: #63645b;
+  --faint: #9a9a8d;
+  --accent: #2f5d4b;
+  --accent-alt: #8a2f2f;
+  --rule: #d5d0bd;
+  --grid: rgba(47, 93, 75, 0.13);
+  --grain-opacity: 0.05;
+  --font-display: var(--font-mincho);
+  --font-body: var(--font-gothic);
+  --font-chalk: var(--font-klee);
+}
+
+:root.theme-rooftop {
+  /* 屋上 — dusk. The sky going plum at the edges, the last of the sun low. */
+  --bg: #221b21;
+  --bg-elevated: #2e2429;
+  --fg: #f0e5db;
+  --muted: #a89791;
+  --faint: #7a6a68;
+  --accent: #e08a4c;
+  --accent-alt: #c9556a;
+  --rule: #3d3038;
+  --grid: rgba(224, 138, 76, 0.12);
+  --grain-opacity: 0.055;
+  --font-display: var(--font-mincho);
+  --font-body: var(--font-gothic);
+  --font-chalk: var(--font-klee);
+}
+
+:root.theme-white-room {
+  /* ホワイトルーム — no warmth anywhere. Nothing on the walls. The only
+     colour is a cold institutional blue, and even that is grudging. */
+  --bg: #f7f8f9;
+  --bg-elevated: #eceef1;
+  --fg: #0e1013;
+  --muted: #61666d;
+  --faint: #9aa0a8;
+  --accent: #46708f;
+  --accent-alt: #7c8794;
+  --rule: #dcdfe3;
+  --grid: rgba(70, 112, 143, 0.1);
+  --grain-opacity: 0;
+  --font-display: var(--font-gothic);
+  --font-body: var(--font-gothic);
+  --font-chalk: var(--font-gothic);
+}
+
+:root.theme-lights-out {
+  /* 消灯 — past curfew. One desk lamp, and the rest of the room gone. */
+  --bg: #0b0c0f;
+  --bg-elevated: #14161b;
+  --fg: #e6e4de;
+  --muted: #8d8b84;
+  --faint: #5b5a55;
+  --accent: #d8a441;
+  --accent-alt: #a8622f;
+  --rule: #22242a;
+  --grid: rgba(216, 164, 65, 0.1);
+  --grain-opacity: 0.045;
+  --font-display: var(--font-mincho);
+  --font-body: var(--font-gothic);
+  --font-chalk: var(--font-klee);
+}
+
+:root.theme-sakura {
+  /* 桜 — the entrance ceremony. First term, and none of it has happened yet. */
+  --bg: #faf1f1;
+  --bg-elevated: #f3e4e5;
+  --fg: #33262a;
+  --muted: #786066;
+  --faint: #a89197;
+  --accent: #b4536b;
+  --accent-alt: #6a7f5e;
+  --rule: #e9d5d8;
+  --grid: rgba(180, 83, 107, 0.11);
+  --grain-opacity: 0.04;
+  --font-display: var(--font-mincho);
+  --font-body: var(--font-klee);
+  --font-chalk: var(--font-klee);
+}
+
+/* ------------------------------------------------------------- base */
 
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "ss01", "ss02", "cv11", "kern";
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-fg);
-  font-family: var(--font-sans);
-  font-feature-settings: "kern", "liga", "calt";
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
   overflow-x: hidden;
+  transition:
+    background-color 400ms ease,
+    color 400ms ease;
 }
 
 ::selection {
-  background: var(--color-accent);
-  color: var(--color-bg);
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.font-serif {
+  font-family: var(--font-display);
+  font-feature-settings: "kern", "liga", "palt";
+}
+
+/* The platform's own mincho, for the handful of Japanese characters in the
+   chrome. Five kanji in a theme switcher do not justify a webfont, and every
+   device that can render them already ships one. */
+.font-jp {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP",
+    "Shippori Mincho", serif;
+  font-feature-settings: "palt";
+}
+
+/* --------------------------------------------------- 原稿用紙 signature */
+
+/*
+  Genkō yōshi — the squared paper Japanese composition is written on, one
+  character per cell. It is the manuscript grid this whole site is pretending
+  to be written on, so it shows up wherever the page needs a surface rather
+  than a decoration: behind the masthead, and around a lecture's number.
+*/
+.genkou-grid {
+  background-image:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Fades the grid out at the edges so it reads as paper showing through rather
+   than a box drawn on top of the layout. */
+.genkou-fade {
+  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, #000 30%, transparent 100%);
+}
+
+/* A single manuscript cell. Holds a lecture's number on the index and at the
+   head of each essay. */
+.genkou-cell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rule);
+}
+
+.genkou-cell::before,
+.genkou-cell::after {
+  content: "";
+  position: absolute;
+  background: var(--rule);
+  opacity: 0.5;
+}
+
+/* The faint cross that divides a genkō yōshi cell into quarters. */
+.genkou-cell::before {
+  left: 50%;
+  top: 15%;
+  bottom: 15%;
+  width: 1px;
+}
+
+.genkou-cell::after {
+  top: 50%;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+}
+
+/* Vertical Japanese, for the rail that runs down the side of a lecture. */
+.tategaki {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.28em;
 }
 
 .grain::before {
@@ -41,106 +238,100 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.035;
+  opacity: var(--grain-opacity);
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
 
-.font-serif {
-  font-family: var(--font-serif);
-  font-feature-settings: "kern", "liga", "dlig", "ss01";
-}
+/* -------------------------------------------------------- lecture prose */
 
 .prose-lecture {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: 1.1875rem;
-  line-height: 1.78;
-  color: var(--color-fg);
-  letter-spacing: -0.005em;
+  line-height: 1.82;
+  color: var(--fg);
+  letter-spacing: -0.003em;
 }
 
 .prose-lecture > * + * {
-  margin-top: 1.25em;
+  margin-top: 1.3em;
 }
 
 .prose-lecture h1,
 .prose-lecture h2,
 .prose-lecture h3,
 .prose-lecture h4 {
-  font-family: var(--font-serif);
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--color-fg);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--fg);
   scroll-margin-top: 5rem;
 }
 
 .prose-lecture h2 {
   font-size: 1.875rem;
-  line-height: 1.2;
+  line-height: 1.25;
   margin-top: 3.5rem;
   margin-bottom: 0.75rem;
 }
 
+/* Section marks read as the numbered sections of a set text, which is what a
+   lecture is meant to feel like. */
 .prose-lecture h2::before {
   content: "§";
-  color: var(--color-faint);
+  color: var(--faint);
   margin-right: 0.5rem;
   font-weight: 400;
 }
 
 .prose-lecture h3 {
   font-size: 1.375rem;
-  line-height: 1.3;
+  line-height: 1.35;
   margin-top: 2.5rem;
   margin-bottom: 0.5rem;
-  font-style: italic;
-  color: var(--color-fg);
-}
-
-.prose-lecture p {
-  font-family: var(--font-serif);
+  color: var(--fg);
 }
 
 .prose-lecture > p:first-of-type::first-letter {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   float: left;
-  font-size: 4.5rem;
-  line-height: 0.85;
-  padding-right: 0.75rem;
-  padding-top: 0.5rem;
-  font-weight: 500;
-  color: var(--color-accent);
+  font-size: 4.25rem;
+  line-height: 0.86;
+  padding-right: 0.7rem;
+  padding-top: 0.45rem;
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .prose-lecture a {
-  color: var(--color-fg);
+  color: var(--fg);
   text-decoration: underline;
-  text-decoration-color: var(--color-faint);
+  text-decoration-color: var(--faint);
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
   transition: text-decoration-color 200ms ease;
 }
 
 .prose-lecture a:hover {
-  text-decoration-color: var(--color-accent);
+  text-decoration-color: var(--accent);
 }
 
 .prose-lecture strong {
-  color: var(--color-fg);
-  font-weight: 600;
+  color: var(--fg);
+  font-weight: 700;
 }
 
 .prose-lecture em {
   font-style: italic;
-  color: var(--color-fg);
+  color: var(--fg);
 }
 
 .prose-lecture blockquote {
-  border-left: 2px solid var(--color-accent);
+  border-left: 2px solid var(--accent);
   padding-left: 1.5rem;
   margin-left: 0;
   font-style: italic;
-  color: var(--color-muted);
+  color: var(--muted);
   font-size: 1.125rem;
 }
 
@@ -162,7 +353,7 @@ body {
   content: "—";
   position: absolute;
   left: 0;
-  color: var(--color-faint);
+  color: var(--faint);
 }
 
 .prose-lecture ol {
@@ -170,7 +361,7 @@ body {
 }
 
 .prose-lecture ol > li::marker {
-  color: var(--color-faint);
+  color: var(--faint);
 }
 
 .prose-lecture li + li {
@@ -180,15 +371,15 @@ body {
 .prose-lecture code {
   font-family: var(--font-mono);
   font-size: 0.875em;
-  background: var(--color-bg-elevated);
+  background: var(--bg-elevated);
   padding: 0.125em 0.375em;
   border-radius: 0.25rem;
-  color: var(--color-accent);
+  color: var(--accent);
 }
 
 .prose-lecture pre {
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-rule);
+  background: var(--bg-elevated);
+  border: 1px solid var(--rule);
   border-radius: 0.5rem;
   padding: 1.25rem;
   overflow-x: auto;
@@ -199,20 +390,20 @@ body {
 .prose-lecture pre code {
   background: transparent;
   padding: 0;
-  color: var(--color-fg);
+  color: var(--fg);
 }
 
 .prose-lecture hr {
   border: none;
   margin: 3rem auto;
   width: 4rem;
-  border-top: 1px solid var(--color-rule);
+  border-top: 1px solid var(--rule);
 }
 
 .heading-anchor {
   opacity: 0;
   margin-left: 0.5rem;
-  color: var(--color-faint);
+  color: var(--faint);
   transition: opacity 200ms;
 }
 
@@ -224,13 +415,29 @@ h3:hover .heading-anchor {
 @media (max-width: 640px) {
   .prose-lecture {
     font-size: 1.0625rem;
-    line-height: 1.7;
+    line-height: 1.72;
   }
   .prose-lecture h2 {
     font-size: 1.5rem;
   }
   .prose-lecture h3 {
     font-size: 1.25rem;
+  }
+  .prose-lecture > p:first-of-type::first-letter {
+    font-size: 3.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -252,18 +459,24 @@ h3:hover .heading-anchor {
 
 /* Printing (and the bulk PDF export) keeps the article's exact layout — the
    accent drop-cap, the blockquote and heading treatment, the pillar legend —
-   but flips to a light, paper-friendly palette. This is done by overriding the
-   color variables for print only, so every component re-themes automatically
-   without touching its markup. */
+   but flips to a paper-friendly palette regardless of the room the reader
+   happened to be in. Done by overriding the tokens for print only, so every
+   component re-themes without touching its markup. */
 @media print {
-  :root {
-    --color-bg: #ffffff;
-    --color-bg-elevated: #f4f3f0;
-    --color-fg: #14130f;
-    --color-muted: #4a4844;
-    --color-faint: #9b988f;
-    --color-rule: #d9d6cf;
-    --color-accent: oklch(0.58 0.13 55);
+  :root,
+  :root.theme-classroom,
+  :root.theme-rooftop,
+  :root.theme-white-room,
+  :root.theme-lights-out,
+  :root.theme-sakura {
+    --bg: #ffffff;
+    --bg-elevated: #f4f3f0;
+    --fg: #14130f;
+    --muted: #4a4844;
+    --faint: #9b988f;
+    --rule: #d9d6cf;
+    --accent: #2f5d4b;
+    --grain-opacity: 0;
   }
   html,
   body {

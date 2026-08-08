@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="pt-48 pb-24 px-6 text-center">
+    <div className="px-5 pb-24 pt-24 text-center md:px-8">
       <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-6">
         404
       </p>
