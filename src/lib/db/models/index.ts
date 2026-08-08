@@ -14,3 +14,4 @@ export { QuestionAttempt, type QuestionAttemptDoc } from "./QuestionAttempt";
 export { PointEntry, POINT_REASONS, type PointEntryDoc, type PointReason } from "./PointEntry";
 export { Purchase, type PurchaseDoc } from "./Purchase";
 export { DestructionOrder, type DestructionOrderDoc } from "./DestructionOrder";
+export { Order, type OrderDoc } from "./Order";

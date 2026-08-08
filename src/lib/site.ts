@@ -31,7 +31,16 @@ export const SITE_DESCRIPTION =
 export const SITE_SHORT_DESCRIPTION =
   "Long-form lectures on self-discipline, clear thinking, and deliberate living.";
 
-export const AUTHOR_EMAIL = "luckysolanki902@gmail.com";
+export const AUTHOR_EMAIL = "read@dailicle.com";
+
+/**
+ * The contact link, with the subject line already filled in.
+ *
+ * One address serves more than this site, so the subject is what tells whoever
+ * opens it which one the mail is about. Cheap to set, and it saves every reader
+ * from having to explain where they are writing from.
+ */
+export const CONTACT_MAILTO = `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent("Being Ayanokoji")}`;
 
 /**
  * Keywords are close to worthless as a ranking signal now, but they cost

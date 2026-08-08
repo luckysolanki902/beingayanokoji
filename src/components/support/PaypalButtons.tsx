@@ -33,8 +33,13 @@ function sdkUrl(clientId: string, currency: string): string {
     currency,
     intent: "capture",
     components: "buttons",
-    // A one-off contribution has no business offering instalment credit.
-    "disable-funding": "credit, paylater",
+    // Buying points is a one-off purchase and has no business offering
+    // instalment credit. The value is a comma-separated list and PayPal
+    // validates each entry against a fixed set: a single stray space makes
+    // " paylater" an unknown funding source, and the whole SDK script 400s
+    // rather than ignoring it. That failure surfaces to the reader as "PayPal
+    // could not load", which reads like an ad blocker and is not.
+    "disable-funding": "credit,paylater",
   });
   return `https://www.paypal.com/sdk/js?${params.toString()}`;
 }
@@ -82,7 +87,7 @@ export function PaypalButtons({
   clientId: string;
   currency: string;
   getPayload: () => Record<string, unknown> | null;
-  onSuccess: (result: { name?: string | null }) => void;
+  onSuccess: (result: { name?: string | null; points?: number }) => void;
   onError: (message: string) => void;
   onCancel: () => void;
 }) {
@@ -168,7 +173,7 @@ export function PaypalButtons({
             handlers.current.onError(body?.message || "The payment did not go through. Nothing was charged.");
             return;
           }
-          handlers.current.onSuccess({ name: body.name });
+          handlers.current.onSuccess({ name: body.name, points: body.points });
         },
 
         onCancel: () => handlers.current.onCancel(),

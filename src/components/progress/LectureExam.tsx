@@ -123,17 +123,12 @@ export function LectureExam({
             ? "You have passed this one."
             : "The examination"}
         </h2>
-        {!signedIn && (<p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-[color:var(--muted)]">
-            You can sit it without enrolling. It will not pay you, and it will
-            not be recorded, {" "}
-            <Link
-              href={`/enroll?next=/lectures/${slug}`}
-              className="underline decoration-[color:var(--rule)] underline-offset-4 hover:text-[color:var(--fg)]"
-            >
-              enrol first
-            </Link>{" "}
-            if you want the {FIRST_CORRECT_AWARD} points a question.
-          </p>)}
+        {/* No sign-in notice here. Asking someone to enrol before they have
+            read a question is asking them to pay a toll on a road they have
+            not seen, and it is the surest way to have them close the tab. The
+            examination is open to anyone. What enrolling changes is only ever
+            said at the moment it starts to matter, which is after an answer
+            has been marked and a payment has visibly not been made. */}
       </div>
 
       {/* Passed already, not currently retaking. */}
@@ -234,7 +229,29 @@ export function LectureExam({
                     className="mt-4 text-[11px] uppercase tracking-[0.2em] text-[color:var(--accent)]"
                   >
                     + {here.awarded} personal points
-                  </motion.p>) : (here.awardNote && (<p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-[color:var(--faint)]">
+                  </motion.p>) : !signedIn && here.correct ? (
+                  /* The one moment the offer is worth making: they have just
+                     answered correctly and watched it pay nothing. A price
+                     quoted here is a fact about what happened, not a demand
+                     made before anything did. */
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 border-l-2 border-[color:var(--accent)] pl-4"
+                  >
+                    <p className="text-sm leading-relaxed text-[color:var(--muted)]">
+                      That was worth {FIRST_CORRECT_AWARD} points, and you have
+                      nowhere to put them.{" "}
+                      <Link
+                        href={`/enroll?next=/lectures/${slug}`}
+                        className="text-[color:var(--fg)] underline decoration-[color:var(--rule)] underline-offset-4 hover:decoration-[color:var(--accent)]"
+                      >
+                        Enrol
+                      </Link>{" "}
+                      and the rest of this examination pays. A question only
+                      ever pays once, so the ones you answer now are spent.
+                    </p>
+                  </motion.div>) : (here.awardNote && (<p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-[color:var(--faint)]">
                       {here.awardNote}
                     </p>))}
 

@@ -1,12 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SupportButton } from "@/components/SupportButton";
-import { SupportBlock } from "@/components/Support";
 import { ThemeSwitcher } from "@/components/theme/ThemeSwitcher";
 import { useStudent } from "@/components/progress/StudentProvider";
 import { PILLARS } from "@/lib/pillars";
+import { CONTACT_MAILTO } from "@/lib/site";
 
 function useIsPrint() {
   const pathname = usePathname();
@@ -102,47 +103,78 @@ export function SiteHeader() {
 }
 
 /**
- * The class letter and the balance, or a way in.
+ * The student's own corner of the chrome: their face, their class, their money.
  *
- * Deliberately two glyphs and a number rather than an avatar and a dropdown:
- * the only two things a student needs from the chrome are which class they are
- * in and what they can afford, and both are legible at a glance from the corner
- * of a page they are meant to be reading rather than operating.
+ * It is a link to the record, which is where the student card lives, so the
+ * photograph doubles as the way in. Before a photo is uploaded the frame holds
+ * the class letter instead, which is what a real card would show in the same
+ * space and is more useful than a generic silhouette.
+ *
+ * The photograph is fetched from `/api/avatar` rather than passed down as
+ * props: it is a 25KB base64 string on the user document, and inlining it into
+ * every page's payload to draw a 28-pixel circle would be a bad trade made on
+ * every single request.
  */
 function StudentBadge() {
   const student = useStudent();
+  const [hasPhoto, setHasPhoto] = useState(true);
 
+  // Signed out, this is the most important control on the page: nothing can be
+  // earned, held or spent without it. So it is the one filled element in a
+  // header that is otherwise entirely small caps and hairlines, which is what
+  // makes it impossible to miss without shouting.
   if (!student.signedIn) {
-    return (<Link
+    return (
+      <Link
         href="/enroll"
-        className="text-[11px] uppercase tracking-[0.18em] text-[color:var(--muted)] transition-colors hover:text-[color:var(--fg)] md:text-xs"
+        className="border border-[color:var(--accent)] bg-[color:var(--accent)] px-4 py-1.5 text-[11px] uppercase tracking-[0.18em] text-[color:var(--bg)] transition-opacity hover:opacity-85 md:px-5 md:text-xs"
       >
         Enrol
-      </Link>);
+      </Link>
+    );
   }
 
-  return (<Link
+  // Signed in, the balance is on every page of the site, because every page has
+  // something on it that costs points and a price is useless without a purse.
+  return (
+    <Link
       href="/record"
+      aria-label={`Your student card. ${student.name}, ${student.points.toLocaleString()} personal points`}
       title={`${student.name} · ${student.points.toLocaleString()} personal points`}
-      className="group flex items-center gap-2 transition-colors hover:text-[color:var(--fg)]"
+      className="group flex items-center gap-2.5 rounded-full border border-[color:var(--rule)] py-1 pl-1 pr-3 transition-colors hover:border-[color:var(--accent)]"
     >
-      <span className="genkou-cell flex h-6 w-6 shrink-0 font-serif text-[11px] text-[color:var(--muted)] transition-colors group-hover:border-[color:var(--accent)] group-hover:text-[color:var(--accent)]">
-        {student.currentClass === "GRAD" ? "卒" : student.currentClass}
+      <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[color:var(--rule)] bg-[color:var(--bg-elevated)] transition-colors group-hover:border-[color:var(--accent)]">
+        {hasPhoto ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src="/api/avatar"
+            alt=""
+            width={28}
+            height={28}
+            className="h-full w-full object-cover"
+            // 404 means no photograph uploaded yet; fall back to the letter.
+            onError={() => setHasPhoto(false)}
+          />
+        ) : (
+          <span className="font-serif text-[11px] text-[color:var(--muted)] transition-colors group-hover:text-[color:var(--accent)]">
+            {student.currentClass === "GRAD" ? "卒" : student.currentClass}
+          </span>
+        )}
       </span>
-      <span className="font-mono text-[11px] tabular-nums text-[color:var(--muted)] transition-colors group-hover:text-[color:var(--accent)]">
+      <span className="font-mono text-[11px] tabular-nums text-[color:var(--accent)]">
         {student.points.toLocaleString()}
       </span>
-    </Link>);
+      <span className="hidden text-[9px] uppercase tracking-[0.16em] text-[color:var(--faint)] sm:inline">
+        pts
+      </span>
+    </Link>
+  );
 }
 
 export function SiteFooter() {
   if (useIsPrint()) return null;
 
   return (<footer className="mt-28 md:mt-36">
-      <div className="mx-auto max-w-3xl px-5 md:px-8">
-        <SupportBlock source="footer" />
-      </div>
-
       {/* Every subject reachable from every page. This is the bulk of the
           site's internal linking, without it the topic hubs would depend on
           being found through individual lectures. */}
@@ -187,7 +219,7 @@ export function SiteFooter() {
               Philosophy
             </Link>
             <a
-              href="mailto:luckysolanki902@gmail.com"
+              href={CONTACT_MAILTO}
               className="transition-colors hover:text-[color:var(--fg)]"
             >
               Contact

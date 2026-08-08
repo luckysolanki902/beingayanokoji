@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { PaypalButtons } from "@/components/support/PaypalButtons";
 import { useStudent } from "@/components/progress/StudentProvider";
+import { EnrolForm } from "@/components/progress/EnrolForm";
+import { affordanceLadder, bestAffordance } from "@/lib/economy/affordances";
 import {
   LECTURE_UNLOCK_COST,
   POINTS_PER_USD,
@@ -258,24 +260,28 @@ export function PointsShop({
 
         {/* ------------------------------------------------------ the counter */}
         <div className="lg:col-span-6">
-          {/* Points land in an account. Without one there is nowhere to put
-              them, and taking the money anyway would be theft with extra
-              steps. */}
-          {!student.signedIn && (
-            <div className="mb-6 border border-[color:var(--accent)]/50 bg-[color:var(--accent)]/5 p-5">
-              <p className="text-sm leading-relaxed text-[color:var(--muted)]">
-                Points are held against a name, and you have not given one.{" "}
-                <Link
-                  href="/enroll"
-                  className="text-[color:var(--fg)] underline decoration-[color:var(--rule)] underline-offset-4 hover:decoration-[color:var(--accent)]"
-                >
-                  Enrol first
-                </Link>
-                . It takes an email and a password, and nothing is ever sent to
-                the email.
+          {/* Signed out, this is not a shop at all. Points are held against a
+              name and there is no name, so showing a price list and a PayPal
+              button would be selling something that cannot be delivered. The
+              counter is replaced by the register, not decorated with a notice
+              above it. */}
+          {!student.signedIn ? (
+            <div className="border border-[color:var(--accent)]/50 bg-[color:var(--accent)]/5 p-6 md:p-7">
+              <p className="font-hand text-xs tracking-[0.24em] text-[color:var(--muted)]">
+                入学手続き
               </p>
+              <h3 className="font-serif mt-3 text-2xl tracking-tight">
+                Give the register a name first.
+              </h3>
+              <p className="mt-4 text-sm leading-relaxed text-[color:var(--muted)]">
+                Points are held against an account, so there is nowhere to put
+                them until there is one. An email and a password. No
+                verification, and nothing is ever sent to the address.
+              </p>
+
+              <EnrolForm />
             </div>
-          )}
+          ) : null}
 
           {student.signedIn && (
             <div className="mb-6 flex items-baseline justify-between border-b border-[color:var(--rule)] pb-3">
@@ -288,7 +294,7 @@ export function PointsShop({
             </div>
           )}
 
-          {loadFailed && (
+          {student.signedIn && loadFailed && (
             <div className="border border-[color:var(--rule)] p-6 text-sm text-[color:var(--muted)]">
               The counter could not load. Refreshing usually fixes it. The
               examinations pay either way, and they were always the cheaper
@@ -296,7 +302,7 @@ export function PointsShop({
             </div>
           )}
 
-          {!config && !loadFailed && (
+          {student.signedIn && !config && !loadFailed && (
             <div className="space-y-3" aria-hidden="true">
               <div className="h-4 w-32 animate-pulse bg-[color:var(--rule)]/60" />
               <div className="grid grid-cols-3 gap-3">
@@ -308,14 +314,14 @@ export function PointsShop({
             </div>
           )}
 
-          {config && !config.configured && (
+          {student.signedIn && config && !config.configured && (
             <div className="border border-[color:var(--rule)] p-6 text-sm text-[color:var(--muted)]">
               The counter is shut. Points can still be earned, which is how most
               of them are held anyway.
             </div>
           )}
 
-          {config?.configured && (
+          {student.signedIn && config?.configured && (
             <>
               <fieldset>
                 <legend className="mb-4 text-[11px] uppercase tracking-[0.2em] text-[color:var(--muted)]">
@@ -355,12 +361,8 @@ export function PointsShop({
                           {config.symbol}
                           {formatMajor(config.presets[t], config.decimals)}
                         </span>
-                        <span className="mt-1.5 block text-[10px] uppercase tracking-[0.14em] text-[color:var(--faint)]">
-                          {pts >= classUnlockCost(10)
-                            ? "A class"
-                            : pts >= LECTURE_UNLOCK_COST
-                              ? `${Math.floor(pts / LECTURE_UNLOCK_COST)} lecture${Math.floor(pts / LECTURE_UNLOCK_COST) > 1 ? "s" : ""}`
-                              : "Part of a lecture"}
+                        <span className="mt-1.5 block text-[10px] uppercase leading-snug tracking-[0.14em] text-[color:var(--faint)]">
+                          {bestAffordance(pts)}
                         </span>
                       </button>
                     );
@@ -403,27 +405,49 @@ export function PointsShop({
                 )}
               </fieldset>
 
-              {/* The whole transaction in one line, stated before it happens. */}
+              {/* What the money actually turns into, and then what those
+                  points actually reach. A balance figure on its own tells a
+                  reader nothing; the ladder underneath is the part that means
+                  something, and it is why the amount box is worth typing in. */}
               {selectedPoints !== null && selectedMajor !== null && (
-                <p
+                <div
                   aria-live="polite"
-                  className="mt-4 border-l-2 border-[color:var(--accent)] pl-4 text-sm text-[color:var(--muted)]"
+                  className="mt-4 border-l-2 border-[color:var(--accent)] pl-4"
                 >
-                  {config.symbol}
-                  {formatMajor(selectedMajor, config.decimals)} buys{" "}
-                  <span className="font-mono tabular-nums text-[color:var(--accent)]">
-                    {selectedPoints.toLocaleString()}
-                  </span>{" "}
-                  points
-                  {selectedPoints >= LECTURE_UNLOCK_COST && (
-                    <>
-                      , which is{" "}
-                      {Math.floor(selectedPoints / LECTURE_UNLOCK_COST)} lecture
-                      {Math.floor(selectedPoints / LECTURE_UNLOCK_COST) > 1 ? "s" : ""}
-                    </>
-                  )}
-                  .
-                </p>
+                  <p className="text-sm text-[color:var(--muted)]">
+                    {config.symbol}
+                    {formatMajor(selectedMajor, config.decimals)} buys{" "}
+                    <span className="font-mono tabular-nums text-[color:var(--accent)]">
+                      {selectedPoints.toLocaleString()}
+                    </span>{" "}
+                    points, which is enough to{" "}
+                    <span className="text-[color:var(--fg)]">
+                      {(bestAffordance(selectedPoints) ?? "").toLowerCase()}
+                    </span>
+                    .
+                  </p>
+
+                  <ul className="mt-3 space-y-1">
+                    {affordanceLadder(selectedPoints).map((rung) => (
+                      <li
+                        key={rung.label}
+                        className={`flex items-baseline gap-2.5 text-xs ${
+                          rung.reached
+                            ? "text-[color:var(--muted)]"
+                            : "text-[color:var(--faint)] line-through decoration-[color:var(--rule)]"
+                        }`}
+                      >
+                        <span aria-hidden="true" className="w-3 shrink-0">
+                          {rung.reached ? "✓" : ""}
+                        </span>
+                        <span className="font-mono tabular-nums">
+                          {rung.cost.toLocaleString()}
+                        </span>
+                        <span>{rung.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               {config.originalCurrency && (

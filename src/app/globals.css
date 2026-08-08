@@ -73,16 +73,19 @@
 
 :root.theme-white-room {
   /* ホワイトルーム, no warmth anywhere. Nothing on the walls. The only
-     colour is a cold institutional blue, and even that is grudging. */
+     colour is the school's own red, used exactly where the school uses it:
+     on the crest, the class letter and the points balance, and nowhere else.
+     Against this much white it does not need to be loud to be the only thing
+     in the room. */
   --bg: #f7f8f9;
   --bg-elevated: #eceef1;
   --fg: #0e1013;
   --muted: #61666d;
   --faint: #9aa0a8;
-  --accent: #46708f;
-  --accent-alt: #7c8794;
+  --accent: #9b1c2e;
+  --accent-alt: #6f7681;
   --rule: #dcdfe3;
-  --grid: rgba(70, 112, 143, 0.1);
+  --grid: rgba(155, 28, 46, 0.07);
   --grain-opacity: 0;
   --font-display: var(--font-gothic);
   --font-body: var(--font-gothic);
@@ -158,6 +161,22 @@ input:focus {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 2px;
+}
+
+/*
+  Text fields are the exception. The ring the browser draws around a focused
+  input is a second border on top of the hairline the field already has, and two
+  borders on one box reads as an error state rather than a cursor position.
+
+  This is not dropping the affordance: a focused text field already shows a
+  blinking caret inside it, which is a clearer and more specific signal than an
+  outline, and the field's own border still takes the accent colour on focus.
+  Buttons and links keep their focus ring, because those have nothing else.
+*/
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
 }
 
 .font-serif {

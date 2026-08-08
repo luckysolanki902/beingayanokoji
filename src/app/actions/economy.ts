@@ -11,13 +11,14 @@ import {
 import { getCurrentUser } from "@/lib/auth/session";
 import { creditPoints, refundPoints, spendPoints } from "@/lib/economy/points";
 import {
+  CLASS_UNLOCK_COST,
   FIRST_CORRECT_AWARD,
   LECTURE_UNLOCK_COST,
   SITE_DESTRUCTION_COST,
   classUnlockCost,
 } from "@/lib/economy/prices";
 import { getAllLectures } from "@/lib/lectures";
-import { buildCurriculum, getClass, type ClassId } from "@/lib/curriculum";
+import { CLASS_ORDER, buildCurriculum, getClass, type ClassId } from "@/lib/curriculum";
 import { PASS_THRESHOLD, getQuiz } from "@/lib/quizzes";
 import { isAlwaysOpen } from "@/lib/progress/state";
 import { Types } from "mongoose";
@@ -218,6 +219,192 @@ export async function unlockClass(classId: string): Promise<ActionResult> {
   revalidatePath("/", "layout");
   revalidatePath("/lectures");
   return { ok: true, error: null, balance: spend.balance };
+}
+
+/**
+ * Open whole classes, charging the class price for each one this call opens.
+ *
+ * The unit of a promotion is a *class*, not a lecture. A student in Class D
+ * pays 500 to be promoted to C, 1,000 to reach B and 1,500 to reach A, because
+ * reaching B means clearing D and C, and each class costs 500. Pricing per
+ * lecture instead would have quoted 950 for that middle rung, which is neither
+ * the advertised number nor a number anyone could have predicted.
+ *
+ * What is charged is decided by what was actually opened, not by what was
+ * asked for. The bulk write reports the id of every row it created; those map
+ * back to the classes they came from, and only the distinct classes in that set
+ * are billed. So a student who already owns Class D outright pays nothing for it
+ * on the way to Class B, and a double-clicked button opens nothing the second
+ * time and is charged nothing.
+ *
+ * Same saga as every other purchase here: rows first, money second, rows
+ * removed again if the money is not there.
+ */
+async function openClasses(
+  userId: string,
+  balance: number,
+  entries: { slug: string; classId: ClassId }[],
+  entry: {
+    description: (classes: number, cost: number) => string;
+    classId?: ClassId | null;
+    /** What to call it when the reader cannot afford it. */
+    noun: string;
+  }
+): Promise<ActionResult> {
+  if (entries.length === 0) {
+    return { ok: true, error: null, balance };
+  }
+
+  await connectToDatabase();
+
+  // `user` is an ObjectId in the schema; the session carries it as a string.
+  // Mongoose casts that at runtime but bulkWrite's types do not, so the
+  // conversion happens here rather than being asserted away.
+  const oid = new Types.ObjectId(userId);
+
+  const result = await LectureAccess.bulkWrite(
+    entries.map((e) => ({
+      updateOne: {
+        filter: { user: oid, slug: e.slug },
+        update: {
+          $setOnInsert: {
+            user: oid,
+            slug: e.slug,
+            unlockedBy: "class" as const,
+            unlockCost: 0,
+            unlockedAt: new Date(),
+          },
+        },
+        upsert: true,
+      },
+    })),
+    { ordered: false }
+  );
+
+  const opened = result.upsertedCount ?? 0;
+  // Nothing was locked. Not a failure: the reader already has what they asked
+  // for, and charging them for it would be indefensible.
+  if (opened === 0) {
+    return { ok: true, error: null, balance };
+  }
+
+  // `upsertedIds` is keyed by the index of the operation that created the row,
+  // which is how an opened lecture is traced back to the class that billed it.
+  const upsertedIds = result.upsertedIds ?? {};
+  const billed = new Set<ClassId>();
+  for (const key of Object.keys(upsertedIds)) {
+    const at = entries[Number(key)];
+    if (at) billed.add(at.classId);
+  }
+
+  const cost = billed.size * CLASS_UNLOCK_COST;
+  const spend = await spendPoints(userId, cost, {
+    reason: "unlock.class",
+    description: entry.description(billed.size, cost),
+    classId: entry.classId ?? null,
+    meta: { opened, classes: [...billed], perClass: CLASS_UNLOCK_COST },
+  });
+
+  if (!spend.ok) {
+    const newlyOpened = Object.values(upsertedIds);
+    if (newlyOpened.length > 0) {
+      await LectureAccess.deleteMany({ _id: { $in: newlyOpened } });
+    }
+    return {
+      ok: false,
+      error: `${entry.noun} costs ${cost.toLocaleString()} points and you have ${spend.balance.toLocaleString()}.`,
+      balance: spend.balance,
+    };
+  }
+
+  revalidatePath("/", "layout");
+  revalidatePath("/lectures");
+  revalidatePath("/record");
+  return { ok: true, error: null, balance: spend.balance };
+}
+
+/**
+ * Which classes stand between a student and a target class.
+ *
+ * Strictly the ones *below* the target: you are promoted into Class C by
+ * finishing Class D, so that is what the purchase opens. Buying promotion to C
+ * does not hand over Class C's lectures, and the copy says so; it hands over
+ * the work that was in the way.
+ */
+function classesBelow(target: ClassId): ClassId[] {
+  const i = CLASS_ORDER.indexOf(target);
+  return i <= 0 ? [] : CLASS_ORDER.slice(0, i);
+}
+
+/** The lectures of a set of classes, tagged with the class that bills them. */
+function lecturesOf(classes: ClassId[]): { slug: string; classId: ClassId }[] {
+  const wanted = new Set(classes);
+  return buildCurriculum(getAllLectures())
+    .filter((c) => wanted.has(c.meta.id))
+    .flatMap((c) =>
+      c.entries.map((e) => ({ slug: e.lecture.slug, classId: c.meta.id }))
+    );
+}
+
+/**
+ * Promotion to a named class, at 500 for every class it clears.
+ *
+ * From Class D: C costs 500, B costs 1,000, A costs 1,500. The arithmetic is
+ * the whole feature, so it is derived from one constant rather than written
+ * down anywhere as a table that could drift from it.
+ */
+export async function promoteTo(classId: string): Promise<ActionResult> {
+  const user = await getCurrentUser();
+  if (!user) return SIGNED_OUT;
+  if (!databaseConfigured()) {
+    return { ok: false, error: "The register is offline.", balance: user.points };
+  }
+
+  const target = classId as ClassId;
+  if (CLASS_ORDER.indexOf(target) < 0) {
+    return { ok: false, error: "No such class.", balance: user.points };
+  }
+
+  const below = classesBelow(target);
+  if (below.length === 0) {
+    return {
+      ok: false,
+      error: "Everyone starts in Class D. There is nothing below it to clear.",
+      balance: user.points,
+    };
+  }
+
+  const label = getClass(target).label;
+
+  return openClasses(user.id, user.points, lecturesOf(below), {
+    classId: target,
+    noun: `Promotion to ${label}`,
+    description: (classes, cost) =>
+      `Promoted to ${label}, ${classes} class${classes === 1 ? "" : "es"} cleared for ${cost} points`,
+  });
+}
+
+/**
+ * Graduate: every class in the school, at the same price per class.
+ *
+ * The largest thing that can be bought short of the destruction order, and the
+ * only one that ends the curriculum rather than advancing through it. It buys
+ * the lectures and nothing else; the certificate still has to be passed for,
+ * which is the one thing here money does not reach.
+ */
+export async function graduate(): Promise<ActionResult> {
+  const user = await getCurrentUser();
+  if (!user) return SIGNED_OUT;
+  if (!databaseConfigured()) {
+    return { ok: false, error: "The register is offline.", balance: user.points };
+  }
+
+  return openClasses(user.id, user.points, lecturesOf([...CLASS_ORDER]), {
+    classId: CLASS_ORDER[CLASS_ORDER.length - 1],
+    noun: "Graduation",
+    description: (classes, cost) =>
+      `Bought the whole school, ${classes} class${classes === 1 ? "" : "es"} for ${cost} points`,
+  });
 }
 
 /* ------------------------------------------------------------------ *

@@ -31,6 +31,23 @@ const UserSchema = new Schema({
     name: { type: String, trim: true, maxlength: 60 },
 
     /**
+     * The photograph on the student card, as a `data:image/jpeg;base64` URI.
+     *
+     * Stored in the document rather than in object storage, which is the right
+     * call only because of how small these are: the browser resizes to 320px
+     * and re-encodes as JPEG before uploading, so a card photo is around 20KB
+     * and the field is capped well under Mongo's 16MB document limit. It buys a
+     * whole storage provider's worth of avoided complexity, and it means a photo
+     * is deleted by deleting the student, with nothing left in a bucket
+     * afterwards.
+     *
+     * `select: false` because almost nothing needs it. Loading a 30KB string on
+     * every page render to draw a header that shows a class letter and a number
+     * would be a bad trade repeated on every request.
+     */
+    photo: { type: String, default: null, select: false, maxlength: 400_000 },
+
+    /**
      * Personal points, the site's whole economy in one integer.
      *
      * Never written directly. Every change goes through `spendPoints` /

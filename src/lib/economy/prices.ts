@@ -35,6 +35,39 @@ export function classUnlockCost(size: number): number {
 }
 
 /**
+ * The half price, per lecture, that every bulk purchase is charged at.
+ *
+ * Promotion and graduation both open more than one class, and both are billed
+ * on what they actually opened rather than on a headline class price. That
+ * matters: a student who already bought three lectures out of a class must not
+ * be charged again for those three when they buy the class around them.
+ */
+export const BULK_RATE = LECTURE_UNLOCK_COST / 2;
+
+/** The shape of the school, which several prices are derived from. */
+export const CLASS_SIZE = 10;
+export const CLASS_COUNT = 5;
+export const SCHOOL_SIZE = CLASS_SIZE * CLASS_COUNT;
+
+/** One class, bought whole. */
+export const CLASS_UNLOCK_COST = classUnlockCost(CLASS_SIZE);
+
+/**
+ * Graduating outright: every lecture in the school, at the bulk rate.
+ *
+ * The first lecture is free to everyone, so a student starting from nothing
+ * pays for the other forty-nine. Quoted here as the round number for the whole
+ * school, since that is the figure the shop advertises; what is actually
+ * charged is always the bulk rate times what is genuinely still locked.
+ */
+export const GRADUATION_COST = classUnlockCost(SCHOOL_SIZE);
+
+/** The bulk price of opening a given number of still-locked lectures. */
+export function bulkCost(lectureCount: number): number {
+  return Math.ceil(BULK_RATE * lectureCount);
+}
+
+/**
  * The price of asking that this site be taken down.
  *
  * Two million points. At ten to the dollar that is two hundred thousand

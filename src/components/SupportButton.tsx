@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { SupportBlock } from "./Support";
+import { PointsShop } from "@/components/points/PointsShop";
 
 export function SupportButton() {
   const [open, setOpen] = useState(false);
@@ -31,7 +31,7 @@ export function SupportButton() {
         onClick={() => setOpen(true)}
         className="rounded-full border border-[color:var(--accent)]/40 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[color:var(--accent)] transition-colors hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)]/10 md:text-xs"
       >
-        Sustain
+        Buy points
       </button>
 
       {mounted &&
@@ -59,12 +59,12 @@ export function SupportButton() {
                   <button
                     onClick={() => setOpen(false)}
                     className="sticky top-3 float-right z-10 mr-3 w-8 h-8 flex items-center justify-center rounded-full bg-[color:var(--color-bg)] border border-[color:var(--color-rule)] text-[color:var(--color-muted)] hover:text-[color:var(--color-fg)] hover:border-[color:var(--color-muted)] transition-colors text-lg leading-none"
-                    aria-label="Close Sustain"
+                    aria-label="Close the points counter"
                   >
                     ×
                   </button>
                   <div className="bg-[color:var(--color-bg)]">
-                    <SupportBlock source="header" />
+                    <PointsShop source="header" />
                   </div>
                 </motion.div>
               </motion.div>

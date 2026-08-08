@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     type: "website",
     title: `Topics · ${SITE_NAME}`,
     description:
-      "Self-discipline, clear thinking, emotional regulation, strategy, strength, purpose, the twelve subjects these lectures work through.",
+      "Self-discipline, clear thinking, emotional regulation, strategy, strength and purpose. The twelve subjects this curriculum works through, one page each.",
     url: absoluteUrl("/topics"),
   },
 };
@@ -66,22 +66,25 @@ export default function TopicsPage() {
       <div className="px-5 pb-24 pt-12 md:px-8 md:pt-16">
         <div className="mx-auto max-w-5xl">
           <FadeIn>
-            <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-6">
-              The twelve pillars
+            <p className="font-hand mb-6 text-xs tracking-[0.24em] text-[color:var(--muted)]">
+              科目一覧
             </p>
           </FadeIn>
 
           <AnimatedText
             as="h1"
-            text="Every subject, one page each."
+            text="Twelve subjects. Pick your weakest."
             className="font-serif text-5xl md:text-7xl tracking-tight font-medium leading-none"
           />
 
           <FadeIn delay={0.5}>
             <p className="mt-8 max-w-2xl text-[color:var(--color-muted)] leading-relaxed">
-              The lectures are not a stream of unrelated essays. Each one sits
-              under a pillar, and each pillar is a claim about what actually
-              moves a person forward. Start wherever your current bottleneck is.
+              These are not categories invented to tidy an archive. Each one is
+              a claim about what actually limits a person, and every lecture on
+              this site sits under one of them. Most people browse this page
+              looking for the subject they are already good at. I would suggest
+              the opposite, though I am aware that suggesting it rarely changes
+              anyone&apos;s mind.
             </p>
           </FadeIn>
 
@@ -102,8 +105,10 @@ export default function TopicsPage() {
                   <p className="text-sm text-[color:var(--color-muted)] leading-relaxed flex-1">
                     {p.summary}
                   </p>
-                  <p className="mt-5 text-xs text-[color:var(--color-faint)]">
-                    {p.count} published lecture{p.count === 1 ? "" : "s"} →
+                  <p className="mt-5 text-xs text-[color:var(--faint)]">
+                    {p.count > 0
+                      ? `${p.count} lecture${p.count === 1 ? "" : "s"} written →`
+                      : "Still being written →"}
                   </p>
                 </Link>
               </FadeIn>))}
