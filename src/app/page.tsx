@@ -4,6 +4,7 @@ import { AnimatedText, FadeIn } from "@/components/AnimatedText";
 import { BlinkingCursor } from "@/components/Cursor";
 import { getAllLectures } from "@/lib/lectures";
 import { PILLARS } from "@/lib/pillars";
+import { EnrollmentPanel } from "@/components/progress/EnrollmentPanel";
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -50,7 +51,8 @@ const FAQ: { q: string; a: string }[] = [
 ];
 
 export default function HomePage() {
-  const lectures = getAllLectures().slice(0, 3);
+  const all = getAllLectures();
+  const lectures = all.slice(0, 3);
 
   const jsonLd = jsonLdGraph(
     {
@@ -85,7 +87,14 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Hero />
+      <Hero
+        firstSlug={all[0]?.slug ?? "#"}
+        orderedSlugs={all.map((l) => l.slug)}
+        nextUp={all
+          .filter((l) => l.published)
+          .map((l) => ({ slug: l.slug, title: l.title }))}
+      />
+      <Briefing />
       <Manifesto />
       <RecentLectures lectures={lectures} />
       <Pillars />
@@ -100,71 +109,114 @@ export default function HomePage() {
  * most characteristic thing this site has is its sentences, so those go first
  * rather than a hero image or a row of statistics.
  */
-function Hero() {
+function Hero({
+  firstSlug,
+  orderedSlugs,
+  nextUp,
+}: {
+  firstSlug: string;
+  orderedSlugs: string[];
+  nextUp: { slug: string; title: string }[];
+}) {
   return (
-    <section className="px-5 pt-14 pb-20 md:px-8 md:pt-20 md:pb-28">
+    <section className="px-5 pt-14 pb-20 md:px-8 md:pt-20 md:pb-24">
       <div className="mx-auto max-w-3xl text-center">
-        {/* Set as three deliberate lines rather than one wrapping block. The
-            tagline is three beats, and letting the browser choose the breaks
-            put them in the middle of a sentence. */}
-        <AnimatedText
-          as="h2"
-          text="Calm in tone."
-          className="font-serif text-[2rem] font-medium leading-[1.1] tracking-tight md:text-[3.4rem]"
-          stagger={0.05}
-          yOffset={28}
-        />
-        <AnimatedText
-          as="div"
-          text="Heavy in substance."
-          className="font-serif text-[2rem] font-medium leading-[1.1] tracking-tight md:text-[3.4rem]"
-          stagger={0.05}
-          delay={0.3}
-          yOffset={28}
-        />
-        <AnimatedText
-          as="div"
-          text="Compounding in effect."
-          className="font-serif text-[2rem] font-normal italic leading-[1.1] tracking-tight text-[color:var(--accent)] md:text-[3.4rem]"
-          stagger={0.05}
-          delay={0.62}
-          yOffset={28}
-        />
+        <FadeIn>
+          <p className="font-hand text-xs tracking-[0.24em] text-[color:var(--muted)]">
+            入学案内 · Enrolment
+          </p>
+        </FadeIn>
 
-        <FadeIn delay={1.35}>
+        {/* The school's actual opening line, and the most persuasive sentence
+            available: it puts the reader somewhere, with something to lose. */}
+        <div className="mt-6">
+          <AnimatedText
+            as="h2"
+            text="You have been placed"
+            className="font-serif text-[2rem] font-medium leading-[1.1] tracking-tight md:text-[3.4rem]"
+            stagger={0.05}
+            yOffset={28}
+          />
+          <AnimatedText
+            as="div"
+            text="in Class D."
+            className="font-serif text-[2rem] font-normal italic leading-[1.1] tracking-tight text-[color:var(--accent)] md:text-[3.4rem]"
+            stagger={0.05}
+            delay={0.34}
+            yOffset={28}
+          />
+        </div>
+
+        <FadeIn delay={1}>
           <p className="mx-auto mt-9 max-w-xl text-[15px] leading-[1.85] text-[color:var(--muted)] md:text-base">
-            Deeply-researched lectures on self-discipline, clear thinking,
-            emotional regulation, strength, strategy, and purpose. Written for
-            the reader who has consumed a hundred self-improvement essays and
-            converted almost none of them into change.
+            Fifty lectures on self-discipline, clear thinking, emotional
+            regulation, strength, strategy and purpose — arranged into five
+            classes. Everyone starts at the bottom. Each lecture ends in an
+            examination, and the next one opens when you pass it.
             <BlinkingCursor className="ml-1 text-[color:var(--accent)]" />
           </p>
         </FadeIn>
 
-        <FadeIn delay={1.55}>
-          <p className="font-hand mt-6 text-sm text-[color:var(--faint)]">
-            Free to read. No account, no newsletter.
+        <EnrollmentPanel
+          orderedSlugs={orderedSlugs}
+          firstSlug={firstSlug}
+          nextUp={nextUp}
+        />
+
+        <FadeIn delay={0.2}>
+          <p className="mt-7 text-[11px] uppercase tracking-[0.2em] text-[color:var(--faint)]">
+            Free to read · No account · No newsletter
+          </p>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The homeroom teacher's briefing.
+ *
+ * Written in her register — flat, unflattering, no encouragement — because the
+ * ordinary version of this section ("unlock your potential") is the exact thing
+ * the reader has already ignored a hundred times. The persuasion here is that
+ * it declines to persuade.
+ */
+function Briefing() {
+  const lines = [
+    "Let me be direct, since nobody else will be. You have read a hundred essays like the ones on this site. You remember almost none of them, and you changed almost nothing.",
+    "That is not a character flaw. It is what happens when writing is consumed instead of worked through. You felt the click of insight, mistook it for the thing itself, and moved on.",
+    "So this site will not let you consume it. The lectures are ordered, each one assumes the last, and each ends in an examination you have to pass before the next opens. You will find that slower than scrolling.",
+    "That is the entire point. Nobody is going to congratulate you for finishing, and nothing is unlocked at the end but the next piece of work. Begin, or don't.",
+  ];
+
+  return (
+    <section className="border-t border-[color:var(--rule)] px-5 py-20 md:px-8 md:py-28">
+      <div className="mx-auto max-w-2xl">
+        <FadeIn>
+          <p className="font-hand mb-10 text-xs tracking-[0.24em] text-[color:var(--muted)]">
+            担任より · From your homeroom teacher
           </p>
         </FadeIn>
 
-        <FadeIn delay={1.7}>
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-5">
-            <Link
-              href="/lectures"
-              className="group inline-flex items-center gap-3 border border-[color:var(--fg)] px-7 py-3 text-[11px] uppercase tracking-[0.2em] transition-colors duration-300 hover:bg-[color:var(--fg)] hover:text-[color:var(--bg)]"
+        {lines.map((line, i) => (
+          <FadeIn key={i} delay={i * 0.1}>
+            <p
+              className={`font-serif leading-[1.7] tracking-tight ${
+                i === 0
+                  ? "text-xl md:text-2xl"
+                  : "mt-6 text-base text-[color:var(--muted)] md:text-lg"
+              }`}
             >
-              <span>Start reading</span>
-              <span className="transition-transform duration-300 group-hover:translate-x-1">
-                →
-              </span>
-            </Link>
-            <Link
-              href="/about"
-              className="text-[11px] uppercase tracking-[0.2em] text-[color:var(--muted)] transition-colors hover:text-[color:var(--fg)]"
-            >
-              The philosophy
-            </Link>
-          </div>
+              {line}
+            </p>
+          </FadeIn>
+        ))}
+
+        <FadeIn delay={0.5}>
+          <p className="mt-10 border-l-2 border-[color:var(--accent)] pl-5 text-sm text-[color:var(--faint)]">
+            The lectures are free and always will be. The examinations exist to
+            slow you down, not to sell you anything.
+          </p>
         </FadeIn>
       </div>
     </section>
@@ -185,7 +237,7 @@ function Manifesto() {
       <div className="mx-auto max-w-3xl">
         <FadeIn>
           <p className="text-xs uppercase tracking-[0.3em] text-[color:var(--color-muted)] mb-12">
-            The five lines
+            The five rules of this classroom
           </p>
         </FadeIn>
         <ul className="space-y-6">

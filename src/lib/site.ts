@@ -105,3 +105,42 @@ export function breadcrumbNode(trail: { name: string; path: string }[]) {
 export function jsonLdGraph(...nodes: object[]) {
   return { "@context": "https://schema.org", "@graph": nodes };
 }
+
+/**
+ * The whole site as a Course.
+ *
+ * This became true rather than aspirational the moment the lectures were
+ * arranged into classes with examinations between them — which is exactly the
+ * shape `Course` describes. Search engines treat course markup as a distinct
+ * result type, so a curriculum that genuinely is one should say so.
+ */
+export function courseNode(params: {
+  classCount: number;
+  lectureCount: number;
+}) {
+  return {
+    "@type": "Course",
+    "@id": absoluteUrl("/lectures#course"),
+    name: `${SITE_NAME} — the curriculum`,
+    description: `A ${params.lectureCount}-lecture curriculum on self-discipline, clear thinking, emotional regulation, strength, strategy and purpose, arranged into ${params.classCount} classes. Each lecture ends in an examination that opens the next.`,
+    url: absoluteUrl("/lectures"),
+    provider: { "@id": absoluteUrl("/#organization") },
+    inLanguage: "en",
+    isAccessibleForFree: true,
+    educationalLevel: "Adult education",
+    teaches: [
+      "Self-discipline",
+      "Clear thinking",
+      "Emotional regulation",
+      "Focus and attention",
+      "Strategy and leverage",
+      "Purpose",
+    ],
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      courseMode: "online",
+      courseWorkload: `PT${params.lectureCount * 15}M`,
+      instructor: { "@id": absoluteUrl("/#organization") },
+    },
+  };
+}

@@ -33,6 +33,15 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-5 md:px-8 md:pt-6">
         <nav className="flex items-center gap-5 text-[11px] uppercase tracking-[0.18em] text-[color:var(--muted)] md:gap-7 md:text-xs">
           <Link
+            href="/"
+            aria-current={isHome ? "page" : undefined}
+            className={`transition-colors hover:text-[color:var(--fg)] ${
+              isHome ? "text-[color:var(--fg)]" : ""
+            }`}
+          >
+            Home
+          </Link>
+          <Link
             href="/lectures"
             className="transition-colors hover:text-[color:var(--fg)]"
           >

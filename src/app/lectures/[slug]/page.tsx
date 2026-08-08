@@ -7,6 +7,10 @@ import { ScrollProgress } from "@/components/ScrollProgress";
 import { AnimatedText, FadeIn } from "@/components/AnimatedText";
 import { PillarLegend } from "@/components/PillarLegend";
 import { getLecturePillars, getPillar } from "@/lib/pillars";
+import { curriculumIndex, getClass } from "@/lib/curriculum";
+import { getQuiz } from "@/lib/quizzes";
+import { GatedArticle } from "@/components/progress/GatedArticle";
+import { LectureExam } from "@/components/progress/LectureExam";
 import {
   SITE_NAME,
   absoluteUrl,
@@ -73,6 +77,13 @@ export default async function LecturePage({
   // So the earlier lecture sits at idx-1 and the next lecture to read sits at idx+1.
   const prev = idx > 0 ? all[idx - 1] : null;
   const next = idx >= 0 && idx < all.length - 1 ? all[idx + 1] : null;
+
+  // Where this lecture sits in the curriculum, and the whole reading order —
+  // the gate and the exam both need the sequence, and the client cannot read
+  // the markdown directory to work it out for itself.
+  const orderedSlugs = all.map((l) => l.slug);
+  const entry = curriculumIndex(all)[slug];
+  const quiz = getQuiz(slug);
 
   const nav = (prev || next) && (
     <nav className="mx-auto max-w-3xl mt-24 pt-12 border-t border-[color:var(--color-rule)]/40 grid grid-cols-2 gap-8">
@@ -197,7 +208,43 @@ export default async function LecturePage({
       { name: "Home", path: "/" },
       { name: "Lectures", path: "/lectures" },
       { name: lec.title, path: `/lectures/${slug}` },
-    ])
+    ]),
+    // The lecture is a unit of a course, not a loose blog post — and it ends
+    // in a real assessment. Both are declared so the curriculum's structure is
+    // legible to a crawler and not only to a reader.
+    {
+      "@type": "LearningResource",
+      "@id": `${url}#unit`,
+      name: lec.title,
+      url,
+      learningResourceType: "Lecture",
+      educationalLevel: lec.difficulty ?? "introductory",
+      timeRequired: `PT${lec.readingTimeMin}M`,
+      isPartOf: { "@id": absoluteUrl("/lectures#course") },
+      inLanguage: "en",
+      isAccessibleForFree: true,
+      provider: { "@id": absoluteUrl("/#organization") },
+      ...(entry
+        ? { position: entry.index + 1, educationalAlignment: {
+            "@type": "AlignmentObject",
+            alignmentType: "educationalSubject",
+            targetName: getClass(entry.classId).label,
+          } }
+        : {}),
+    },
+    ...(quiz
+      ? [
+          {
+            "@type": "Quiz",
+            "@id": `${url}#exam`,
+            name: `Examination — ${lec.title}`,
+            about: { "@id": `${url}#unit` },
+            educationalLevel: lec.difficulty ?? "introductory",
+            numberOfQuestions: quiz.questions.length,
+            isAccessibleForFree: true,
+          },
+        ]
+      : [])
   );
 
   return (
@@ -270,7 +317,30 @@ export default async function LecturePage({
         </header>
 
         <div className="mx-auto max-w-3xl">
-          <Markdown content={lec.content} />
+          <GatedArticle
+            index={entry?.index ?? 0}
+            orderedSlugs={orderedSlugs}
+            classId={entry?.classId ?? "D"}
+            positionInClass={entry?.positionInClass ?? 1}
+            previousSlug={prev?.slug ?? null}
+            previousTitle={prev?.title ?? null}
+            // The exam goes through the gate too. Left outside it, a locked
+            // lecture's test was still reachable by deep link — which meant
+            // the curriculum could be unlocked from the middle without
+            // reading anything.
+            exam={
+              quiz ? (
+                <LectureExam
+                  slug={slug}
+                  quiz={quiz}
+                  nextSlug={next?.slug ?? null}
+                  nextTitle={next?.title ?? null}
+                />
+              ) : null
+            }
+          >
+            <Markdown content={lec.content} />
+          </GatedArticle>
         </div>
 
         <div className="mx-auto max-w-3xl">

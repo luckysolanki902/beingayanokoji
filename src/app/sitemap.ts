@@ -29,6 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl("/lectures"), changeFrequency: "weekly", priority: 0.9 },
     { url: absoluteUrl("/topics"), changeFrequency: "weekly", priority: 0.9 },
     { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.6 },
+    { url: absoluteUrl("/feed.xml"), changeFrequency: "weekly", priority: 0.4 },
     ...topicEntries,
     ...lectureEntries,
   ];

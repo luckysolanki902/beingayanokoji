@@ -3,7 +3,10 @@ import { Shippori_Mincho, Zen_Kaku_Gothic_New, Klee_One } from "next/font/google
 import { Analytics } from "@vercel/analytics/next";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ProgressProvider } from "@/components/progress/ProgressProvider";
+import { PromotionOverlay } from "@/components/progress/PromotionOverlay";
 import { NO_FLASH_SCRIPT } from "@/lib/themes";
+import { getAllLectures } from "@/lib/lectures";
 import {
   SITE_DESCRIPTION,
   SITE_KEYWORDS,
@@ -96,6 +99,13 @@ export const metadata: Metadata = {
   // Phone numbers in prose are a false positive risk on a site full of dates
   // and figures; Safari linkifying them is noise.
   formatDetection: { telephone: false, address: false, email: false },
+  // Search Console. The meta tag verifies a URL-prefix property on any domain
+  // the site is served from — including the .vercel.app alias, whose DNS we do
+  // not control and therefore cannot add a TXT record to.
+  verification: {
+    google: "2lupVcjQkSBkgZYxGTlq838YyAziVlX-cfHHGLdtV64",
+  },
+
 };
 
 export const viewport: Viewport = {
@@ -128,6 +138,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const orderedSlugs = getAllLectures().map((l) => l.slug);
+
   return (
     <html
       lang="en"
@@ -144,14 +156,29 @@ export default function RootLayout({
         />
         {/* PayPal's SDK is fetched only when a reader opens the support panel;
             warming the connection early keeps that first paint from stalling. */}
+        {/* Declared here rather than in `metadata.alternates`: every page sets
+            its own `alternates` for the canonical, and Next replaces the whole
+            field rather than merging it — which silently dropped the feed. */}
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={SITE_NAME}
+          href="/feed.xml"
+        />
         <link rel="preconnect" href="https://www.paypal.com" />
         <link rel="dns-prefetch" href="https://www.paypal.com" />
       </head>
       <body className="grain">
         <ThemeProvider>
-          <SiteHeader />
-          <main className="min-h-screen">{children}</main>
-          <SiteFooter />
+          <ProgressProvider>
+            <SiteHeader />
+            <main className="min-h-screen">{children}</main>
+            <SiteFooter />
+            {/* Mounted site-wide so the promotion fires wherever the reader
+                happened to finish the class — usually an exam, but a restored
+                record on any page counts too. */}
+            <PromotionOverlay orderedSlugs={orderedSlugs} />
+          </ProgressProvider>
         </ThemeProvider>
         <Analytics />
       </body>
