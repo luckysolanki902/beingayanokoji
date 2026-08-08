@@ -56,10 +56,11 @@ export function hasGraduated(passed: number, total: number): boolean {
  * collision would mean two cards sharing a printed number, which is a cosmetic
  * problem and not a security one, since nothing is ever looked up by it.
  */
-export function studentNumberFor(id: string): string {
+export function studentNumberFor(id: string, attempt = 0): string {
   let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  const seed = attempt === 0 ? id : `${id}:${attempt}`;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
   }
   return String(hash % 1_000_000).padStart(6, "0");
 }
@@ -75,14 +76,20 @@ export async function getCredentials(): Promise<Credentials | null> {
   // being dragged through every render that touches the user.
   let photo: string | null = null;
   let enrolledAt = new Date();
+  let studentNumber = studentNumberFor(user.id);
   if (databaseConfigured()) {
     try {
       await connectToDatabase();
-      const row = await User.findById(user.id, { photo: 1, createdAt: 1 })
+      const row = await User.findById(user.id, {
+        photo: 1,
+        createdAt: 1,
+        studentNumber: 1,
+      })
         .select("+photo")
         .lean();
       photo = row?.photo ?? null;
       enrolledAt = (row as { createdAt?: Date } | null)?.createdAt ?? enrolledAt;
+      if (row?.studentNumber) studentNumber = row.studentNumber;
     } catch (err) {
       console.error("[credentials] could not read the card photo:", err);
     }
@@ -92,7 +99,7 @@ export async function getCredentials(): Promise<Credentials | null> {
     id: user.id,
     name: user.name,
     email: user.email,
-    studentNumber: studentNumberFor(user.id),
+    studentNumber,
     classId: record.currentClass,
     className: getClass(record.currentClass).label,
     points: user.points,

@@ -4,10 +4,12 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getStudentRecord } from "@/lib/progress/state";
 import { connectToDatabase, databaseConfigured } from "@/lib/db/connect";
-import { Order, PointEntry } from "@/lib/db/models";
+import { Order, PointEntry, User } from "@/lib/db/models";
 import { ClassUnlockButton } from "@/components/progress/ClassUnlockButton";
 import { AdvancementPanel, type AdvancementOption } from "@/components/progress/AdvancementPanel";
 import { IdCard } from "@/components/progress/IdCard";
+import { PublicityToggles } from "@/components/progress/PublicityToggles";
+import { ensureStudentNumber } from "@/lib/profile/public";
 import { CertificatePanel } from "@/components/progress/CertificatePanel";
 import { hasGraduated } from "@/lib/id/credentials";
 import { owns, timesBought } from "@/lib/economy/orders";
@@ -41,10 +43,26 @@ export default async function RecordPage() {
   // Both decided on the server: whether the card has been paid for, and what
   // the next name change costs. The component only renders these; it cannot
   // grant itself either.
-  const [cardIssued, nameChanges] = await Promise.all([
+  const [cardIssued, nameChanges, studentNumber] = await Promise.all([
     owns(user.id, "card.download"),
     timesBought(user.id, "name.change"),
+    // Backfills the roll number for accounts created before public profiles.
+    ensureStudentNumber(user.id),
   ]);
+
+  // The publicity switches, read straight from the account.
+  const settings = await User.findById(user.id, {
+    publicListed: 1,
+    photoPublic: 1,
+    photo: 1,
+    nameChosen: 1,
+  })
+    .select("+photo")
+    .lean();
+  const hasPhoto = Boolean(settings?.photo);
+  // An explicit fact, not a guess based on capitalization: valid chosen names
+  // can be lowercase or contain one word.
+  const usingDefaultName = settings?.nameChosen !== true;
   const nameCost =
     nameChanges < CATALOGUE["name.change"].freeUses ? 0 : CATALOGUE["name.change"].price;
 
@@ -153,6 +171,14 @@ export default async function RecordPage() {
           price={CATALOGUE["card.download"].price}
           nameChangePrice={nameCost}
           balance={record.points}
+        />
+
+        <PublicityToggles
+          listed={settings?.publicListed ?? true}
+          photoPublic={settings?.photoPublic ?? false}
+          hasPhoto={hasPhoto}
+          studentNumber={studentNumber}
+          usingDefaultName={usingDefaultName}
         />
 
         {/* Standing: the balance, the class, and the two counts. Nothing here

@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Shippori_Mincho, Zen_Kaku_Gothic_New, Klee_One } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import { Suspense } from "react";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { StudentProvider } from "@/components/progress/StudentProvider";
 import { PromotionOverlay } from "@/components/progress/PromotionOverlay";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { NO_FLASH_SCRIPT } from "@/lib/themes";
 import { getStudentRecord } from "@/lib/progress/state";
 import {
@@ -194,7 +195,9 @@ export default async function RootLayout({
             <PromotionOverlay />
           </StudentProvider>
         </ThemeProvider>
-        <Analytics />
+        <Suspense fallback={null}>
+          <AnalyticsTracker />
+        </Suspense>
       </body>
     </html>);
 }

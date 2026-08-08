@@ -198,6 +198,8 @@ export function LectureExam({
                     type="button"
                     disabled={Boolean(here) || pending}
                     onClick={() => choose(i)}
+                    data-track="exam.answer"
+                    data-track-label={`${slug}:${question.id}`}
                     className={`w-full border px-4 py-3 text-left text-sm leading-relaxed transition-colors ${tone} ${
                       here ? "cursor-default" : "cursor-pointer"
                     } disabled:cursor-default`}

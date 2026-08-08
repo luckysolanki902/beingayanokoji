@@ -7,6 +7,7 @@ import { connectToDatabase, databaseConfigured } from "@/lib/db/connect";
 import { LectureAccess, User } from "@/lib/db/models";
 import { endSession, startSession } from "@/lib/auth/session";
 import { getAllLectures } from "@/lib/lectures";
+import { studentNumberFor } from "@/lib/id/credentials";
 
 /**
  * Enrolment: one form that both creates an account and signs into one.
@@ -76,13 +77,33 @@ export async function enrol(_prev: EnrolState, formData: FormData): Promise<Enro
       await User.updateOne({ _id: existing._id }, { $set: { lastSeenAt: new Date() } });
     } else {
       const passwordHash = await bcrypt.hash(password, 12);
-      const created = await User.create({
+      // Build first so Mongo's _id exists before the initial write. That lets
+      // the public roll number and account land atomically: there is never a
+      // published user whose profile URL has not been assigned yet.
+      const created = new User({
         email,
         passwordHash,
         name: email.split("@")[0],
+        nameChosen: false,
         points: 0,
+        publicListed: true,
+        photoPublic: false,
       });
       userId = String(created._id);
+      let saved = false;
+      for (let attempt = 0; attempt < 20; attempt++) {
+        created.studentNumber = studentNumberFor(userId, attempt);
+        try {
+          await created.save();
+          saved = true;
+          break;
+        } catch (err) {
+          const mongo = err as { code?: number; keyPattern?: Record<string, number> };
+          if (mongo.code === 11000 && mongo.keyPattern?.studentNumber) continue;
+          throw err;
+        }
+      }
+      if (!saved) throw new Error("Could not allocate a unique student number.");
       outcome = "enrolled";
       await openFirstLecture(userId);
     }

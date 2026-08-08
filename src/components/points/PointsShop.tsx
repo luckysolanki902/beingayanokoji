@@ -336,6 +336,8 @@ export function PointsShop({
                       <button
                         key={t}
                         type="button"
+                        data-track="shop.tier_select"
+                        data-track-label={`${source}:${t}`}
                         onClick={() => {
                           setTier(t);
                           setError(null);

@@ -29,6 +29,8 @@ const UserSchema = new Schema({
     passwordHash: { type: String, required: true, select: false },
     /** What the roster calls them. Defaults to the local part of the email. */
     name: { type: String, trim: true, maxlength: 60 },
+    /** True after the student explicitly saves the name shown on their card. */
+    nameChosen: { type: Boolean, required: true, default: false },
 
     /**
      * The photograph on the student card, as a `data:image/jpeg;base64` URI.
@@ -46,6 +48,37 @@ const UserSchema = new Schema({
      * would be a bad trade repeated on every request.
      */
     photo: { type: String, default: null, select: false, maxlength: 400_000 },
+
+    /**
+     * The roll number, stored rather than derived.
+     *
+     * It is computed from the account id, so it could be recomputed on demand,
+     * but a public profile is addressed *by* this number and a hash cannot be
+     * run backwards. Storing it makes the lookup an indexed query instead of a
+     * scan over every student. Written on enrolment and backfilled on first
+     * read for accounts that predate it.
+     */
+    studentNumber: { type: String, default: null },
+
+    /**
+     * Whether this student appears on the roll of honour and has a public page.
+     *
+     * On by default, because a leaderboard nobody is on is not a leaderboard.
+     * Off is one click away on the record, and turning it off also takes the
+     * public page down: there is no version of this where a student is ranked
+     * publicly and cannot stop it.
+     */
+    publicListed: { type: Boolean, required: true, default: true },
+
+    /**
+     * Whether the photograph may be shown publicly.
+     *
+     * Off by default, and deliberately a *separate* decision from being listed.
+     * Agreeing to have a score ranked is not agreeing to have your face on the
+     * front page, and defaulting a photograph to public because it was uploaded
+     * for a private card would be putting words in someone's mouth.
+     */
+    photoPublic: { type: Boolean, required: true, default: false },
 
     /**
      * Personal points, the site's whole economy in one integer.
@@ -74,6 +107,13 @@ const UserSchema = new Schema({
     lastSeenAt: { type: Date, default: Date.now },
   },
   { timestamps: true });
+
+// Public profile URLs must identify exactly one student. The partial filter
+// keeps legacy null/missing values out of the unique index until backfilled.
+UserSchema.index(
+  { studentNumber: 1 },
+  { unique: true, partialFilterExpression: { studentNumber: { $type: "string" } } }
+);
 
 export type UserDoc = InferSchemaType<typeof UserSchema> & { _id: mongoose.Types.ObjectId };
 

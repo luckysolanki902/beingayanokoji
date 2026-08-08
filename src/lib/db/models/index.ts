@@ -15,3 +15,8 @@ export { PointEntry, POINT_REASONS, type PointEntryDoc, type PointReason } from 
 export { Purchase, type PurchaseDoc } from "./Purchase";
 export { DestructionOrder, type DestructionOrderDoc } from "./DestructionOrder";
 export { Order, type OrderDoc } from "./Order";
+export {
+  AnalyticsEvent,
+  ANALYTICS_EVENTS,
+  type AnalyticsEventDoc,
+} from "./AnalyticsEvent";

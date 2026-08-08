@@ -6,6 +6,7 @@ import { User } from "@/lib/db/models";
 import { getCurrentUser } from "@/lib/auth/session";
 import { placeOrder, timesBought } from "@/lib/economy/orders";
 import { CATALOGUE } from "@/lib/economy/catalogue";
+import { studentNumberFor } from "@/lib/id/credentials";
 
 /**
  * The card photograph, and the student's own name on the card.
@@ -73,13 +74,20 @@ export async function removePhoto(): Promise<ProfileResult> {
 
   try {
     await connectToDatabase();
-    await User.updateOne({ _id: user.id }, { $set: { photo: null } });
+    // A later upload must begin private again. Leaving photoPublic=true here
+    // would silently publish the replacement the moment it was saved.
+    await User.updateOne(
+      { _id: user.id },
+      { $set: { photo: null, photoPublic: false } }
+    );
   } catch (err) {
     console.error("[profile] could not remove the card photo:", err);
     return { ok: false, error: "That could not be removed. Try again." };
   }
 
   revalidatePath("/record");
+  revalidatePath("/");
+  revalidatePath(`/students/${studentNumberFor(user.id)}`);
   return { ok: true, error: null };
 }
 
@@ -107,8 +115,16 @@ export async function updateName(name: string): Promise<ProfileResult & { charge
 
   // Setting it to what it already says is not a change, and must not be sold
   // as one. Checked before the till, so a stray double submit is free.
-  const current = await User.findById(user.id, { name: 1 }).lean();
+  const current = await User.findById(user.id, { name: 1, nameChosen: 1 }).lean();
   if ((current?.name ?? "") === clean) {
+    // Saving the existing text is still an explicit choice to publish it as
+    // the card name. This also backfills accounts created before nameChosen.
+    if (!current?.nameChosen) {
+      await User.updateOne({ _id: user.id }, { $set: { nameChosen: true } });
+      revalidatePath("/", "layout");
+      revalidatePath("/record");
+      revalidatePath(`/students/${studentNumberFor(user.id)}`);
+    }
     return { ok: true, error: null, charged: 0 };
   }
 
@@ -122,7 +138,10 @@ export async function updateName(name: string): Promise<ProfileResult & { charge
   }
 
   try {
-    await User.updateOne({ _id: user.id }, { $set: { name: clean } });
+    await User.updateOne(
+      { _id: user.id },
+      { $set: { name: clean, nameChosen: true } }
+    );
   } catch (err) {
     console.error("[profile] could not save the name:", err);
     return { ok: false, error: "That could not be saved. Try again." };
@@ -130,6 +149,7 @@ export async function updateName(name: string): Promise<ProfileResult & { charge
 
   revalidatePath("/", "layout");
   revalidatePath("/record");
+  revalidatePath(`/students/${studentNumberFor(user.id)}`);
   return { ok: true, error: null, charged: order.cost };
 }
 
@@ -139,4 +159,53 @@ export async function nameChangePrice(): Promise<number> {
   if (!user) return CATALOGUE["name.change"].price;
   const used = await timesBought(user.id, "name.change");
   return used < CATALOGUE["name.change"].freeUses ? 0 : CATALOGUE["name.change"].price;
+}
+
+/**
+ * The two publicity switches.
+ *
+ * Only ever applies the fields it was actually given, so flipping one switch
+ * cannot silently reset the other, and refuses to publish a photograph that
+ * does not exist: a stored `photoPublic: true` on an account with no photo is a
+ * promise the site would break the moment one was uploaded.
+ */
+export async function setPublicity(next: {
+  listed?: boolean;
+  photoPublic?: boolean;
+}): Promise<ProfileResult> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "You need to be enrolled to do that." };
+
+  // Server actions are HTTP endpoints. TypeScript describes our own caller;
+  // it does not stop a crafted request from sending null or an array.
+  if (!next || typeof next !== "object" || Array.isArray(next)) {
+    return { ok: false, error: "Those publicity settings are not valid." };
+  }
+
+  const update: Record<string, boolean> = {};
+  if (typeof next.listed === "boolean") update.publicListed = next.listed;
+  if (typeof next.photoPublic === "boolean") update.photoPublic = next.photoPublic;
+  if (Object.keys(update).length === 0) return { ok: true, error: null };
+
+  try {
+    await connectToDatabase();
+
+    const result = await User.updateOne(
+      update.photoPublic === true
+        ? { _id: user.id, photo: { $type: "string", $ne: "" } }
+        : { _id: user.id },
+      { $set: update }
+    );
+    if (update.photoPublic === true && result.matchedCount === 0) {
+      return { ok: false, error: "There is no photograph on your card yet." };
+    }
+  } catch (err) {
+    console.error("[profile] could not save publicity settings:", err);
+    return { ok: false, error: "That could not be saved. Try again." };
+  }
+
+  revalidatePath("/record");
+  revalidatePath("/");
+  revalidatePath(`/students/${studentNumberFor(user.id)}`);
+  return { ok: true, error: null };
 }

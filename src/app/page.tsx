@@ -7,6 +7,8 @@ import { PILLARS } from "@/lib/pillars";
 import Image from "next/image";
 import { EnrollmentPanel } from "@/components/progress/EnrollmentPanel";
 import { getStudentRecord, type StudentRecord as StudentRecordProp } from "@/lib/progress/state";
+import { getLeaderboard } from "@/lib/profile/public";
+import { RollOfHonour } from "@/components/progress/RollOfHonour";
 import { SITE_IMAGES } from "@/lib/lecture-images";
 import {
   SITE_DESCRIPTION,
@@ -59,6 +61,7 @@ const FAQ: { q: string; a: string }[] = [
 
 export default async function HomePage() {
   const record = await getStudentRecord();
+  const leaders = await getLeaderboard(10);
   const all = getAllLectures();
   const lectures = all.slice(0, 3);
 
@@ -93,6 +96,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Hero record={record} />
+      <RollOfHonour students={leaders} />
       <Briefing />
       <Manifesto />
       <RecentLectures lectures={lectures} />

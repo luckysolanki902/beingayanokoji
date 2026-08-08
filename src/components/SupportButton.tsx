@@ -29,6 +29,8 @@ export function SupportButton() {
     <>
       <button
         onClick={() => setOpen(true)}
+        data-track="support.open"
+        data-track-label="header"
         className="rounded-full border border-[color:var(--accent)]/40 px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-[color:var(--accent)] transition-colors hover:border-[color:var(--accent)] hover:bg-[color:var(--accent)]/10 md:text-xs"
       >
         Buy points

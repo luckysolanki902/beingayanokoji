@@ -70,6 +70,8 @@ export function UnlockLectureButton({
             <button
               type="button"
               onClick={open}
+              data-track="lecture.unlock_intent"
+              data-track-label={slug}
               disabled={pending}
               className="border border-[color:var(--accent)] bg-[color:var(--accent)]/10 px-7 py-3 text-[11px] uppercase tracking-[0.2em] transition-colors hover:bg-[color:var(--accent)] hover:text-[color:var(--bg)] disabled:opacity-40"
             >

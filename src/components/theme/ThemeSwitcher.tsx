@@ -30,6 +30,8 @@ export function ThemeSwitcher({ className = "" }: { className?: string }) {
         return (<button
             key={t.id}
             type="button"
+            data-track={ready && !active ? "theme.change" : undefined}
+            data-track-label={ready && !active ? t.id : undefined}
             role="radio"
             aria-checked={active}
             aria-label={`${t.label}, ${t.note}`}

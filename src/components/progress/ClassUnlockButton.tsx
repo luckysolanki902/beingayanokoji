@@ -72,6 +72,8 @@ export function ClassUnlockButton({
           <button
             type="button"
             onClick={buy}
+            data-track="class.unlock_intent"
+            data-track-label={classId}
             disabled={pending}
             className="border border-[color:var(--accent)] bg-[color:var(--accent)]/10 px-6 py-2.5 text-[11px] uppercase tracking-[0.2em] transition-colors hover:bg-[color:var(--accent)] hover:text-[color:var(--bg)] disabled:opacity-40"
           >

@@ -25,6 +25,8 @@ export function EnrolForm({ next }: { next?: string }) {
 
   return (<motion.form
       action={formAction}
+      data-track="auth.submit"
+      data-track-label="enrol-or-sign-in"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
